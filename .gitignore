@@ -18,6 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
+.idea/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +32,55 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Eclipse
+# Игнорировать файлы проекта Eclipse
+.classpath
+.project
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Spring Boot
+bin/
+build/
+!src/main/
+!src/test/
+/target/
+
+#ssl
+src/main/resources/baeldung.p12
+
+#
+test
+
+#docker-compose
+docker-compose.yml

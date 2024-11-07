@@ -2,6 +2,7 @@ package ru.example.JWT_Auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,11 +33,13 @@ public class SecurityConfig {
 	}
 
 	@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	@Order(1)
+	protected SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     	return http
-            .csrf().disable()
+    		.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
-            		.requestMatchers("/api/v1/auth/**")
+            		.requestMatchers("/api-docs/**", "/swagger-ui.html", "/swagger-ui/**"
+            				, "/api/v1/auth/**")
             		.permitAll()
             		.anyRequest()
             		.authenticated()
@@ -49,8 +52,9 @@ public class SecurityConfig {
                 .build();
     }
 
+	
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    protected AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -58,12 +62,12 @@ public class SecurityConfig {
     }
     
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    protected AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(BCryptVersion.$2Y);
     }
 }
