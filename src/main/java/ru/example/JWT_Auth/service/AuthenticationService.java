@@ -5,15 +5,21 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.example.JWT_Auth.DTO.AuthenticationRequest;
+import ru.example.JWT_Auth.DTO.AuthenticationResponse;
 import ru.example.JWT_Auth.DTO.RegisterRequest;
-import ru.example.JWT_Auth.DTO.authenticationResponse;
 import ru.example.JWT_Auth.config.JwtService;
 import ru.example.JWT_Auth.entity.Role;
 import ru.example.JWT_Auth.entity.User;
+import ru.example.JWT_Auth.entity.UserEmail;
 import ru.example.JWT_Auth.repository.UserRepository;
 
+
+/**
+ * 
+ */
 @Service
 public class AuthenticationService {
 
@@ -21,38 +27,55 @@ public class AuthenticationService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
+	private final VerifiedService verifiedService;
 
+	/**
+	 * @param repository
+	 * @param passwordEncoder
+	 * @param jwtService
+	 * @param authenticationManager
+	 * @param verifiedService
+	 */
 	public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService,
-			AuthenticationManager authenticationManager) {
+			AuthenticationManager authenticationManager, VerifiedService verifiedService) {
 		this.repository = repository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtService = jwtService;
 		this.authenticationManager = authenticationManager;
+		this.verifiedService = verifiedService;
 	}
 
-	public authenticationResponse register(RegisterRequest request) {
+	@Transactional
+	public AuthenticationResponse register(RegisterRequest request) throws Exception {
 		if (repository.findByUsername(request.getUsername()).isPresent()) {
-			return new authenticationResponse.Builder().token("User with username " + request.getUsername() + " already exists.").build();
+			throw new Exception("User with username " + request.getUsername() + " already exists.");
 		}
 
-		var user = new User.Builder()
-				.username(request.getUsername())
-				.password(passwordEncoder.encode(request.getPassword()))
-				.email(request.getEmail())
-				.role(Role.USER)
+		User user = new User.Builder().username(request.getUsername())
+				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)
 				.build();
+		verifiedService.verifiedByUserEmail(new UserEmail(user.getEmail()));
 		repository.save(user);
-		var jwtToken = jwtService.generateToken(user);
-		return new authenticationResponse.Builder().token(jwtToken).build();
+		String jwtToken = jwtService.generateToken(user);
+		return new AuthenticationResponse.Builder().token(jwtToken).build();
 	}
 
-	public authenticationResponse Authenticate(AuthenticationRequest request) {
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-		var user = repository.findByUsername(request.getUsername())
-				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
-		
-		var jwtToken = jwtService.generateToken(user);
-		return new authenticationResponse.Builder().token(jwtToken).build();
+	public AuthenticationResponse Authenticate(AuthenticationRequest request) throws Exception {
+		try {
+			authenticationManager
+			.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+			
+			User user = repository
+					.findByUsername(request.getUsername())
+					.orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
+
+			return new AuthenticationResponse.Builder().token(jwtService.generateToken(user)).build();
+			
+		} catch (UsernameNotFoundException e) {
+			throw new UsernameNotFoundException("Authentication failed: " + e.getMessage(), e);
+		} catch (Exception e) {
+			throw new RuntimeException("Authentication process encountered an error.", e);
+		}
 	}
 
 }

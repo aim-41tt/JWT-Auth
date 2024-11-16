@@ -1,20 +1,20 @@
 package ru.example.JWT_Auth.DTO;
 
-public class authenticationResponse {
+public class AuthenticationResponse {
 
 	private String token;
 
 	/**
 	 * @param token
 	 */
-	public authenticationResponse(String token) {
+	public AuthenticationResponse(String token) {
 		this.token = token;
 	}
 
 	/**
 	 * 
 	 */
-	public authenticationResponse() {
+	public AuthenticationResponse() {
 	}
 
 	/**
@@ -40,8 +40,8 @@ public class authenticationResponse {
 		}
 
 		// Метод для создания объекта User
-		public authenticationResponse build() {
-			 return new authenticationResponse(token);
+		public AuthenticationResponse build() {
+			 return new AuthenticationResponse(token);
 		}
 	}
 	

@@ -1,10 +1,16 @@
 start:
 	docker-compose up -d
+	
 restart:
 	make clear
 	make start
+	
 clear:
 	docker compose down --volumes
+
+cm:
+	docker-compose up -d --build
+	
 config:
 	cd src/main/resources
 

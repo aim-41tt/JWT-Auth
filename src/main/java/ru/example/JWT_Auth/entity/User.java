@@ -1,7 +1,10 @@
 package ru.example.JWT_Auth.entity;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +38,9 @@ public class User implements UserDetails {
 	@Column(unique = true, nullable = false)
 	private String email;
 
+	@Column(nullable = false)
+	private Boolean verified;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Role role;
@@ -62,13 +68,15 @@ public class User implements UserDetails {
 	 * @param username
 	 * @param password
 	 * @param email
+	 * @param verified
 	 * @param role
 	 */
-	public User(Long id, String username, String password, String email, Role role) {
+	public User(Long id, String username, String password, String email, Boolean verified, Role role) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.email = email;
+		this.verified = verified;
 		this.role = role;
 	}
 
@@ -145,6 +153,20 @@ public class User implements UserDetails {
 	}
 
 	/**
+	 * @return the verified
+	 */
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	/**
+	 * @param verified the verified to set
+	 */
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
+	}
+
+	/**
 	 * @return the role
 	 */
 	public Role getRole() {
@@ -177,12 +199,19 @@ public class User implements UserDetails {
 				&& Objects.equals(username, other.username);
 	}
 
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email
+				+ ", verified=" + verified + ", role=" + role + "]";
+	}
+
 	public static class Builder {
 		private Long id;
 		private String username;
 		private String password;
 		private String email;
 		private Role role;
+		private Boolean verified = false;
 
 		public Builder id(Long id) {
 			this.id = id;
@@ -209,9 +238,14 @@ public class User implements UserDetails {
 			return this;
 		}
 
+		public Builder verified(Boolean verified) {
+			this.verified = verified;
+			return this;
+		}
+
 		// Метод для создания объекта User
 		public User build() {
-			 return new User(id, username, password, email, role);
+			return new User(id, username, password, email, verified, role);
 		}
 	}
 }

@@ -19,7 +19,7 @@ public class AppConfig {
 	}
 
 	@Bean
-	public UserDetailsService userDetailsService() {
+	protected UserDetailsService userDetailsService() {
 		return username -> {
 			if (username == null || username.isEmpty()) {
 				throw new UsernameNotFoundException("Username cannot be null or empty");

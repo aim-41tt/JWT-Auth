@@ -18,11 +18,13 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import io.jsonwebtoken.security.SignatureException;
+import ru.example.JWT_Auth.entity.User;
 
 @Service
 public class JwtService {
 
 	private static final String SECRET_KEY = Base64.getEncoder().encodeToString("51e8ea280b44e16934d4d611901f3d3afc41789840acdff81942c2f65009cd52".getBytes());
+	private static final long TOKEN_EXPIRATION_MS = 1000 * 60 * 60 * 24;
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -36,18 +38,27 @@ public class JwtService {
 		return claimsResolver.apply(claims);
 	}
 
-	public String generateToken(UserDetails userDetails) {
+	public String generateToken(User userDetails) {
 		return generateToken(new HashMap<>(), userDetails);
 	}
 
-	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-		extraClaims.put("role", userDetails.getAuthorities().toString());
+	/**
+	 * @param extraClaims
+	 * @param userDetails
+	 * @return JWT
+	 */
+	public String generateToken(Map<String, Object> extraClaims, User userDetails) {
+		extraClaims.put("id", userDetails.getId());
+		extraClaims.put("email", userDetails.getEmail());
+		extraClaims.put("verified", userDetails.getVerified());
+		extraClaims.put("role", userDetails.getRole());
 		return Jwts.builder()
 				.setClaims(extraClaims)
 				.setSubject(userDetails.getUsername())
-				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24)))
-				.signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_MS))
+				.signWith(getSignInKey(), SignatureAlgorithm.HS256)
+				.compact();
 	}
   
 	public boolean isTokenValid(String token, UserDetails userDetails) {
