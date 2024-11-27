@@ -27,7 +27,7 @@ public class VerifiedService {
 
 	@Async
 	public void verifiedByUserEmail(UserEmail userEmail) {
-		System.out.println(kafkaProducter.sendMessageToKafka(userEmail));
+		kafkaProducter.sendMessageToKafka(userEmail);
 	}
 	
 	// dont use
@@ -37,9 +37,8 @@ public class VerifiedService {
 	}
 	@Async
 	public void verifiedByUserName(String username) {
-		Optional<User> user = repository.findByUsername(username);
-		System.out.println(user.get());
-		verifiedByUserEmail(new UserEmail(user.get()));
+		Optional<UserEmail> userEmail = repository.findUserEmailByUsername(username);
+		verifiedByUserEmail(userEmail.get());
 	}
 
 }

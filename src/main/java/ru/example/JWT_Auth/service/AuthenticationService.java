@@ -7,9 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ru.example.JWT_Auth.DTO.AuthenticationRequest;
-import ru.example.JWT_Auth.DTO.AuthenticationResponse;
-import ru.example.JWT_Auth.DTO.RegisterRequest;
+import ru.example.JWT_Auth.DTO.request.AuthenticationRequest;
+import ru.example.JWT_Auth.DTO.request.RegisterRequest;
+import ru.example.JWT_Auth.DTO.response.AuthenticationResponse;
 import ru.example.JWT_Auth.config.JwtService;
 import ru.example.JWT_Auth.entity.Role;
 import ru.example.JWT_Auth.entity.User;

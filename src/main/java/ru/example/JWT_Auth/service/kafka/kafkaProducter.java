@@ -34,7 +34,6 @@ public class kafkaProducter {
 			try {
 				String userEmailJson = MAPPER.writeValueAsString(userEmail);
 				kafkaTemplate.send(topicName, userEmailJson).get();
-				System.out.println(userEmailJson);
 				return true;
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();

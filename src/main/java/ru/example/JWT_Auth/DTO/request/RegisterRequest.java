@@ -1,4 +1,4 @@
-package ru.example.JWT_Auth.DTO;
+package ru.example.JWT_Auth.DTO.request;
 
 public class RegisterRequest {
 

@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ru.example.JWT_Auth.DTO.AuthenticationRequest;
-import ru.example.JWT_Auth.DTO.AuthenticationResponse;
-import ru.example.JWT_Auth.DTO.RegisterRequest;
+import ru.example.JWT_Auth.DTO.request.AuthenticationRequest;
+import ru.example.JWT_Auth.DTO.request.RegisterRequest;
+import ru.example.JWT_Auth.DTO.response.AuthenticationResponse;
 import ru.example.JWT_Auth.service.AuthenticationService;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-	private final AuthenticationService service;
+	private final AuthenticationService authService;
 
-	public AuthController(AuthenticationService service) {
-		this.service = service;
+	public AuthController(AuthenticationService authService) {
+		this.authService = authService;
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
 		AuthenticationResponse authenticationResponse = null;
 		try {
-			authenticationResponse = service.register(request);
+			authenticationResponse = authService.register(request);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body(e.getMessage());
 		}
@@ -36,7 +36,7 @@ public class AuthController {
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
 		try {
-			return ResponseEntity.ok(service.Authenticate(request));
+			return ResponseEntity.ok(authService.Authenticate(request));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body(e.getMessage());
 		}
