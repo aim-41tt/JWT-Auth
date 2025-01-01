@@ -16,12 +16,12 @@ import ru.example.JWT_Auth.repository.UserRepository;
 import java.util.Optional;
 
 @Service
-public class KafkaСonsumer {
+public class KafkaConsumer {
 
     private final UserRepository userRepository;
     private final ObjectMapper MAPPER;
 
-    public KafkaСonsumer(UserRepository userRepository, ObjectMapper mAPPER) {
+    public KafkaConsumer(UserRepository userRepository, ObjectMapper mAPPER) {
         this.userRepository = userRepository;
         this.MAPPER = mAPPER;
     }
