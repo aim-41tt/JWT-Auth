@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
-import ru.example.JWT_Auth.entity.User;
+import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
 
 @Service
@@ -56,6 +56,9 @@ public class UserService {
 		verifiedService.verifiedByUser(user);
 	}
 	
+	public void resetPasswordUser(User user) {
+		verifiedService.resetPasswordByUser(user);
+	}
 	
 
 	private UserDTO mapToDto(User user) {

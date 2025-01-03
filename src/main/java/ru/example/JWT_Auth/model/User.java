@@ -1,4 +1,4 @@
-package ru.example.JWT_Auth.entity;
+package ru.example.JWT_Auth.model;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import ru.example.JWT_Auth.model.enums.Role;
 
 @SuppressWarnings("serial")
 @Entity

@@ -11,9 +11,8 @@ import ru.example.JWT_Auth.DTO.request.AuthenticationRequest;
 import ru.example.JWT_Auth.DTO.request.RegisterRequest;
 import ru.example.JWT_Auth.DTO.response.AuthenticationResponse;
 import ru.example.JWT_Auth.config.JwtService;
-import ru.example.JWT_Auth.entity.Role;
-import ru.example.JWT_Auth.entity.User;
-import ru.example.JWT_Auth.entity.UserEmail;
+import ru.example.JWT_Auth.model.User;
+import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
 
 
@@ -54,7 +53,9 @@ public class AuthenticationService {
 		User user = new User.Builder().username(request.getUsername())
 				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)
 				.build();
-		verifiedService.verifiedByUserEmail(new UserEmail(user.getEmail()));
+		
+		verifiedService.verifiedByUser(user);
+		
 		repository.save(user);
 		String jwtToken = jwtService.generateToken(user);
 		return new AuthenticationResponse.Builder().token(jwtToken).build();

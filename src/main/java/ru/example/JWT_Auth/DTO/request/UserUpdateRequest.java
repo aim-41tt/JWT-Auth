@@ -3,7 +3,7 @@ package ru.example.JWT_Auth.DTO.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import ru.example.JWT_Auth.entity.Role;
+import ru.example.JWT_Auth.model.enums.Role;
 
 public class UserUpdateRequest {
 	@NotBlank(message = "Username cannot be blank")

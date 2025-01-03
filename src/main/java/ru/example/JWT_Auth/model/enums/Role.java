@@ -1,4 +1,4 @@
-package ru.example.JWT_Auth.entity;
+package ru.example.JWT_Auth.model.enums;
 
 public enum Role {
 	ADMIN,

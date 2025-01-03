@@ -18,7 +18,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import io.jsonwebtoken.security.SignatureException;
-import ru.example.JWT_Auth.entity.User;
+import ru.example.JWT_Auth.model.User;
 
 @Service
 public class JwtService {

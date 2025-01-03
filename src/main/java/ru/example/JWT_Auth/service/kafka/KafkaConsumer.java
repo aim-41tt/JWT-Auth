@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ru.example.JWT_Auth.entity.User;
-import ru.example.JWT_Auth.entity.UserEmail;
+import ru.example.JWT_Auth.DTO.email.EmailDTO;
+import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
 
 import java.util.Optional;
@@ -30,19 +30,22 @@ public class KafkaConsumer {
     private void UserAuthListener(ConsumerRecord<String, String> clientRequestMessages, Acknowledgment ack) {
         try {
             // Преобразуем JSON-сообщение в объект UserEmail
-            UserEmail userEmail = MAPPER.readValue(clientRequestMessages.value(), UserEmail.class);
+        	EmailDTO emailDTO = MAPPER.readValue(clientRequestMessages.value(), EmailDTO.class);
 
             // Находим пользователя по email
-            Optional<User> userOptional = userRepository.findByEmail(userEmail.getEmail());
+            Optional<User> userOptional = userRepository.findByEmail(emailDTO.getEmailMessage().getEmail().getEmail());
 
             if (userOptional.isPresent()) {
                 // Если пользователь найден, обновляем поле verified и сохраняем в базе
                 User user = userOptional.get();
-                user.setVerified(userEmail.getVerified());
-                userRepository.save(user);
+                user.setVerified(emailDTO.getEmailMessage().getEmail().getVerified());
+                if (emailDTO.getIsActionConfirmed()) {
+					 userRepository.save(user);
+				}
+               
             } else {
                 // Логируем или обрабатываем случай, когда пользователь не найден
-                System.out.println("Пользователь с email " + userEmail.getEmail() + " не найден.");
+                System.out.println("Пользователь с email " + emailDTO.getEmailMessage().getEmail().getEmail() + " не найден.");
             }
 
             ack.acknowledge();

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ru.example.JWT_Auth.entity.UserEmail;
+import ru.example.JWT_Auth.model.email.EmailMessage;
 
 @Service
 public class kafkaProducter {
@@ -29,7 +29,7 @@ public class kafkaProducter {
 	}
 
 	@Async
-	public CompletableFuture<Boolean> sendMessageToKafka(UserEmail userEmail) {
+	public CompletableFuture<Boolean> sendMessageToKafka(EmailMessage userEmail) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				String userEmailJson = MAPPER.writeValueAsString(userEmail);

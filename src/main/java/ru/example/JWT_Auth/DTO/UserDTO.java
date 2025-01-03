@@ -1,6 +1,6 @@
 package ru.example.JWT_Auth.DTO;
 
-import ru.example.JWT_Auth.entity.Role;
+import ru.example.JWT_Auth.model.enums.Role;
 
 public class UserDTO {
 	private Long id;
