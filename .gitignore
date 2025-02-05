@@ -1,39 +1,12 @@
-### JavaDoc
-/doc/
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# javaDoc
+doc/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-.idea/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
+# Игнорировать скомпилированные файлы и артефакты сборки
+/target/*
 
 # Eclipse
 # Игнорировать файлы проекта Eclipse
@@ -47,11 +20,24 @@ tmp/
 *.swp
 *~
 
+# Игнорировать файлы проекта IntelliJ IDEA
+*.iml
+*.iws
+*.ipr
+.idea/
+
 # Compiled class files
 *.class
 
 # Log files
+/logs/*
 *.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
 # Package Files #
 *.jar
@@ -71,18 +57,17 @@ pom.xml.next
 release.properties
 dependency-reduced-pom.xml
 
+# Gradle
+.gradle/
+build/
+
 # Spring Boot
 bin/
 build/
+!target/
 !src/main/
 !src/test/
 /target/
 
-#ssl
-src/main/resources/baeldung.p12
-
-#
-test
-
-#docker-compose
-docker-compose.yml
+# docker
+.env
