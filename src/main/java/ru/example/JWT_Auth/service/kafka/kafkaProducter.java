@@ -17,7 +17,7 @@ public class kafkaProducter {
 
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper MAPPER;
-	private final String topicName = "email_verifier";
+	private final String topicName = "verifer";
 
 	/**
 	 * @param kafkaTemplate

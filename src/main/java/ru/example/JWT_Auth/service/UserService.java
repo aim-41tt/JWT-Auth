@@ -2,6 +2,7 @@ package ru.example.JWT_Auth.service;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
@@ -23,18 +24,18 @@ public class UserService {
 		this.verifiedService = verifiedService;
 	}
 
+	@Transactional
 	public UserDTO getUserProfile(String username) {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 		return mapToDto(user);
 	}
 
+	@Transactional
 	public UserDTO updateUserProfile(String username, UserUpdateRequest updateRequest) {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		
-		
-		
+
 		if (updateRequest.getUsername() != null) {
 			user.setUsername(updateRequest.getUsername());
 		}
@@ -50,16 +51,14 @@ public class UserService {
 		User updatedUser = userRepository.save(user);
 		return mapToDto(updatedUser);
 	}
-	
-	
+
 	public void verifiedEmailUser(User user) {
 		verifiedService.verifiedByUser(user);
 	}
-	
+
 	public void resetPasswordUser(User user) {
 		verifiedService.resetPasswordByUser(user);
 	}
-	
 
 	private UserDTO mapToDto(User user) {
 		UserDTO dto = new UserDTO();

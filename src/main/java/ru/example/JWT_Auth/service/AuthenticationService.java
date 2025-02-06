@@ -15,7 +15,6 @@ import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
 
-
 /**
  * 
  */
@@ -50,28 +49,31 @@ public class AuthenticationService {
 			throw new Exception("User with username " + request.getUsername() + " already exists.");
 		}
 
-		User user = new User.Builder().username(request.getUsername())
-				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)
+		User user = new User.Builder()
+				.username(request.getUsername())
+				.password(passwordEncoder.encode(request.getPassword()))
+				.email(request.getEmail()).role(Role.USER)
 				.build();
-		
+
 		verifiedService.verifiedByUser(user);
-		
+
 		repository.save(user);
 		String jwtToken = jwtService.generateToken(user);
 		return new AuthenticationResponse.Builder().token(jwtToken).build();
 	}
 
+	@Transactional
 	public AuthenticationResponse Authenticate(AuthenticationRequest request) throws Exception {
 		try {
-			authenticationManager
-			.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-			
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
 			User user = repository
 					.findByUsername(request.getUsername())
 					.orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
 
 			return new AuthenticationResponse.Builder().token(jwtService.generateToken(user)).build();
-			
+
 		} catch (UsernameNotFoundException e) {
 			throw new UsernameNotFoundException("Authentication failed: " + e.getMessage(), e);
 		} catch (Exception e) {

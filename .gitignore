@@ -71,3 +71,6 @@ build/
 
 # docker
 .env
+
+# ssl
+src/main/resources/*.p12 

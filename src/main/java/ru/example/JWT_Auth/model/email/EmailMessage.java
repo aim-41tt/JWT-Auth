@@ -1,57 +1,59 @@
 package ru.example.JWT_Auth.model.email;
 
-import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import ru.example.JWT_Auth.model.email.enums.MessageType;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmailMessage {
 
-	private Email email;
+	@NotEmpty(message = "Email не должен быть пустым")
+	@Email(message = "Некорректный формат email")
+	private String email;
+	@JsonProperty("messageType")
 	private MessageType messageType;
+	private String link;
 
-	public EmailMessage() {
-
-	}
-
+	
+	
 	/**
-	 * @author aim_41tt
-	 * @since 29 дек. 2024 г.
-	 *
 	 * @param email
 	 * @param messageType
 	 */
-	public EmailMessage(Email email, MessageType messageType) {
+	public EmailMessage(
+			@NotEmpty(message = "Email не должен быть пустым") @Email(message = "Некорректный формат email") String email,
+			MessageType messageType) {
 		this.email = email;
 		this.messageType = messageType;
 	}
 
 	/**
-	 * @author aim_41tt
-	 * @since 29 дек. 2024 г.
-	 *
 	 * @param email
+	 * @param messageType
+	 * @param link
 	 */
-	public EmailMessage(Email email) {
+	public EmailMessage(
+			@NotEmpty(message = "Email не должен быть пустым") @Email(message = "Некорректный формат email") String email,
+			MessageType messageType, String link) {
 		this.email = email;
-		this.messageType = MessageType.VERIFICATION;
+		this.messageType = messageType;
+		this.link = link;
 	}
 
 	/**
 	 * @return the email
 	 */
-	public Email getEmail() {
+	public String getEmail() {
 		return email;
 	}
 
 	/**
 	 * @param email the email to set
 	 */
-	public void setEmail(Email email) {
+	public void setEmail(String email) {
 		this.email = email;
 	}
 
@@ -69,43 +71,18 @@ public class EmailMessage {
 		this.messageType = messageType;
 	}
 
-	@Override
-	public String toString() {
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			return objectMapper.writeValueAsString(this);
-		} catch (Exception e) {
-			return "{\"error\":\"Failed to convert object to JSON\"}";
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(email, messageType);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof EmailMessage)) {
-			return false;
-		}
-		EmailMessage other = (EmailMessage) obj;
-		return Objects.equals(email, other.email) && messageType == other.messageType;
+	/**
+	 * @return the link
+	 */
+	public String getLink() {
+		return link;
 	}
 
 	/**
-	 * @author aim_41tt
-	 * @since 3 янв. 2025 г.
-	 *
-	 * @return true is Empty
-	 * @see ru.example.JWT_Auth.model.email.Email#isEmpty()
+	 * @param link the link to set
 	 */
-	@JsonIgnore
-	public boolean isEmpty() {
-		return email.isEmpty();
+	public void setLink(String link) {
+		this.link = link;
 	}
 
 }

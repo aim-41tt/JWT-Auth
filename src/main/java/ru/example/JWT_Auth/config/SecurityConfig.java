@@ -2,7 +2,6 @@ package ru.example.JWT_Auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -33,7 +32,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	@Order(1)
+//	@Order(1)
 	protected SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     	return http
     		.csrf(csrf -> csrf.disable())
