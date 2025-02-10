@@ -16,7 +16,15 @@ import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
 
 /**
- * 
+ * Сервис для аутентификации и регистрации пользователей.
+ *
+ * <p>
+ * Предоставляет методы для регистрации, аутентификации и выдачи JWT-токенов.
+ * </p>
+ *
+ * @author aim_41tt
+ * @version 1.0
+ * @since 10.02.2025
  */
 @Service
 public class AuthenticationService {
@@ -28,11 +36,15 @@ public class AuthenticationService {
 	private final VerifiedService verifiedService;
 
 	/**
-	 * @param repository
-	 * @param passwordEncoder
-	 * @param jwtService
-	 * @param authenticationManager
-	 * @param verifiedService
+	 * Конструктор AuthenticationService — инициализирует сервис с необходимыми
+	 * зависимостями.
+	 *
+	 * @param repository            Репозиторий пользователей.
+	 * @param passwordEncoder       Кодировщик паролей.
+	 * @param jwtService            Сервис для работы с JWT-токенами.
+	 * @param authenticationManager Менеджер аутентификации.
+	 * @param verifiedService       Сервис верификации пользователей.
+	 * @since 10.02.2025
 	 */
 	public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService,
 			AuthenticationManager authenticationManager, VerifiedService verifiedService) {
@@ -43,42 +55,71 @@ public class AuthenticationService {
 		this.verifiedService = verifiedService;
 	}
 
+	/**
+	 * Метод register — Регистрирует нового пользователя.
+	 *
+	 * <p>
+	 * Проверяет, существует ли пользователь с таким именем. Если нет — создает
+	 * нового пользователя, шифрует его пароль, сохраняет в БД, отправляет письмо
+	 * для верификации и генерирует JWT-токен.
+	 * </p>
+	 *
+	 * @param request Запрос на регистрацию, содержащий имя пользователя, email и
+	 *                пароль.
+	 * @return AuthenticationResponse с JWT-токеном.
+	 * @throws IllegalArgumentException если пользователь с таким именем уже
+	 *                                  существует.
+	 * @since 10.02.2025
+	 */
 	@Transactional
-	public AuthenticationResponse register(RegisterRequest request) throws Exception {
+	public AuthenticationResponse register(RegisterRequest request) throws IllegalArgumentException {
 		if (repository.findByUsername(request.getUsername()).isPresent()) {
-			throw new Exception("User with username " + request.getUsername() + " already exists.");
+			throw new IllegalArgumentException("Пользователь с именем " + request.getUsername() + " уже существует.");
 		}
 
-		User user = new User.Builder()
-				.username(request.getUsername())
-				.password(passwordEncoder.encode(request.getPassword()))
-				.email(request.getEmail()).role(Role.USER)
+		User user = new User.Builder().username(request.getUsername())
+				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)
 				.build();
 
+		repository.save(user);
 		verifiedService.verifiedByUser(user);
 
-		repository.save(user);
 		String jwtToken = jwtService.generateToken(user);
 		return new AuthenticationResponse.Builder().token(jwtToken).build();
 	}
 
+	/**
+	 * Метод authenticate — Аутентифицирует пользователя по логину и паролю.
+	 *
+	 * <p>
+	 * Проверяет учетные данные, используя {@link AuthenticationManager}. Если
+	 * аутентификация успешна, возвращает JWT-токен.
+	 * </p>
+	 *
+	 * @param request Запрос на аутентификацию, содержащий имя пользователя и
+	 *                пароль.
+	 * @return AuthenticationResponse с JWT-токеном.
+	 * @throws UsernameNotFoundException если пользователь не найден.
+	 * @throws RuntimeException          в случае других ошибок аутентификации.
+	 * @since 10.02.2025
+	 */
 	@Transactional
-	public AuthenticationResponse Authenticate(AuthenticationRequest request) throws Exception {
+	public AuthenticationResponse authenticate(AuthenticationRequest request)
+			throws UsernameNotFoundException, RuntimeException {
 		try {
 			authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-			User user = repository
-					.findByUsername(request.getUsername())
-					.orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
+			User user = repository.findByUsername(request.getUsername()).orElseThrow(
+					() -> new UsernameNotFoundException("Пользователь не найден: " + request.getUsername()));
 
-			return new AuthenticationResponse.Builder().token(jwtService.generateToken(user)).build();
+			String jwtToken = jwtService.generateToken(user);
+			return new AuthenticationResponse.Builder().token(jwtToken).build();
 
 		} catch (UsernameNotFoundException e) {
-			throw new UsernameNotFoundException("Authentication failed: " + e.getMessage(), e);
+			throw new UsernameNotFoundException("Ошибка аутентификации: " + e.getMessage(), e);
 		} catch (Exception e) {
-			throw new RuntimeException("Authentication process encountered an error.", e);
+			throw new RuntimeException("Ошибка в процессе аутентификации.", e);
 		}
 	}
-
 }

@@ -1,6 +1,7 @@
 package ru.example.JWT_Auth.model;
 
 import java.util.Collection;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +18,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import ru.example.JWT_Auth.model.enums.Role;
+
+/**
+ * Класс User — представляет сущность пользователя.
+ *
+ * <p>
+ * Реализует интерфейс {@link UserDetails} для интеграции с Spring Security.
+ * </p>
+ *
+ * @author aim_41tt
+ * @version 1.0
+ * @since 10.02.2025
+ */
 
 @SuppressWarnings("serial")
 @Entity

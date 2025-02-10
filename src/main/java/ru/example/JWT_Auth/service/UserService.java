@@ -9,6 +9,18 @@ import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
 
+/**
+ * Сервис для управления пользователями.
+ *
+ * <p>
+ * Содержит методы для получения и обновления профиля пользователя, а также для 
+ * верификации email и сброса пароля.
+ * </p>
+ * 
+ * @author aim_41tt
+ * @version 1.0
+ * @since 10.02.2025
+ */
 @Service
 public class UserService {
 
@@ -16,14 +28,26 @@ public class UserService {
 	private final VerifiedService verifiedService;
 
 	/**
-	 * @param userRepository
-	 * @param verifiedService
+	 * Конструктор UserService — инициализирует сервис с репозиторием пользователей
+	 * и сервисом верификации email.
+	 *
+	 * @param userRepository  Репозиторий для работы с пользователями.
+	 * @param verifiedService Сервис для верификации email.
+	 * @since 10.02.2025
 	 */
 	public UserService(UserRepository userRepository, VerifiedService verifiedService) {
 		this.userRepository = userRepository;
 		this.verifiedService = verifiedService;
 	}
 
+	/**
+	 * Метод getUserProfile — Возвращает профиль пользователя по его имени.
+	 *
+	 * @param username Имя пользователя.
+	 * @return Объект UserDTO с данными пользователя.
+	 * @throws UsernameNotFoundException если пользователь не найден.
+	 * @since 10.02.2025
+	 */
 	@Transactional
 	public UserDTO getUserProfile(String username) {
 		User user = userRepository.findByUsername(username)
@@ -31,8 +55,21 @@ public class UserService {
 		return mapToDto(user);
 	}
 
+	/**
+	 * Метод updateUserProfile — Обновляет профиль пользователя.
+	 *
+	 * <p>
+	 * Если email изменяется, то статус верификации сбрасывается на false.
+	 * </p>
+	 *
+	 * @param username      Имя пользователя.
+	 * @param updateRequest Объект с новыми данными для обновления.
+	 * @return Обновленный профиль пользователя в виде DTO.
+	 * @throws UsernameNotFoundException если пользователь не найден.
+	 * @since 10.02.2025
+	 */
 	@Transactional
-	public UserDTO updateUserProfile(String username, UserUpdateRequest updateRequest) {
+	public UserDTO updateUserProfile(String username, UserUpdateRequest updateRequest) throws UsernameNotFoundException {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -43,7 +80,6 @@ public class UserService {
 			user.setVerified(false);
 			user.setEmail(updateRequest.getEmail());
 		}
-
 		if (updateRequest.getRole() != null) {
 			user.setRole(updateRequest.getRole());
 		}
@@ -52,14 +88,33 @@ public class UserService {
 		return mapToDto(updatedUser);
 	}
 
+	/**
+	 * Метод verifiedEmailUser — Отправляет email для верификации пользователя.
+	 *
+	 * @param user Объект пользователя.
+	 * @since 10.02.2025
+	 */
 	public void verifiedEmailUser(User user) {
 		verifiedService.verifiedByUser(user);
 	}
 
+	/**
+	 * Метод resetPasswordUser — Отправляет email для сброса пароля пользователя.
+	 *
+	 * @param user Объект пользователя.
+	 * @since 10.02.2025
+	 */
 	public void resetPasswordUser(User user) {
 		verifiedService.resetPasswordByUser(user);
 	}
 
+	/**
+	 * Метод mapToDto — Преобразует объект пользователя в DTO.
+	 *
+	 * @param user Объект пользователя.
+	 * @return Объект UserDTO с данными пользователя.
+	 * @since 10.02.2025
+	 */
 	private UserDTO mapToDto(User user) {
 		UserDTO dto = new UserDTO();
 		dto.setUsername(user.getUsername());
