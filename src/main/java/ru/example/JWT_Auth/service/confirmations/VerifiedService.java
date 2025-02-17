@@ -1,4 +1,4 @@
-package ru.example.JWT_Auth.service;
+package ru.example.JWT_Auth.service.confirmations;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,8 @@ import ru.example.JWT_Auth.service.kafka.KafkaProducer;
  * Сервис для проверки и верификации пользователей.
  *
  * <p>
- * Предоставляет методы для отправки email-сообщений и верификации пользователей по имени и email.
+ * Предоставляет методы для отправки email-сообщений и верификации пользователей
+ * по имени и email.
  * </p>
  *
  * @author aim_41tt
@@ -25,22 +26,27 @@ public class VerifiedService {
 
 	private final UserRepository repository;
 	private final KafkaProducer kafkaProducer;
+	private final RedisVerificationService verificationService;
 
 	/**
-	 * Конструктор VerifiedService — инициализирует сервис с репозиторием пользователей
-	 * и продюсером Kafka.
+	 * Конструктор VerifiedService — инициализирует сервис с репозиторием
+	 * пользователей и продюсером Kafka.
 	 *
-	 * @param repository    Репозиторий пользователей.
-	 * @param kafkaProducer Kafka-продюсер для отправки сообщений.
-	 * @since 10.02.2025
+	 * @param repository               Репозиторий пользователей.
+	 * @param kafkaProducer            Kafka-продюсер для отправки сообщений.
+	 * @param RedisVerificationService для создания временных токенов.
+	 * @since 14.02.2025
 	 */
-	public VerifiedService(UserRepository repository, KafkaProducer kafkaProducer) {
+	public VerifiedService(UserRepository repository, KafkaProducer kafkaProducer,
+			RedisVerificationService verificationService) {
 		this.repository = repository;
 		this.kafkaProducer = kafkaProducer;
+		this.verificationService = verificationService;
 	}
 
 	/**
-	 * Метод sendMessageToEmail — Асинхронно отправляет сообщение на email через Kafka.
+	 * Метод sendMessageToEmail — Асинхронно отправляет сообщение на email через
+	 * Kafka.
 	 *
 	 * @param emailMessage Объект EmailMessage с данными для отправки.
 	 * @since 10.02.2025
@@ -61,7 +67,8 @@ public class VerifiedService {
 	}
 
 	/**
-	 * Метод verifiedByUserName — Отправляет email для верификации пользователя по имени.
+	 * Метод verifiedByUserName — Отправляет email для верификации пользователя по
+	 * имени.
 	 *
 	 * @param username Имя пользователя.
 	 * @throws IllegalStateException если email пользователя не найден.
@@ -88,7 +95,8 @@ public class VerifiedService {
 	}
 
 	/**
-	 * Метод resetPasswordByUserName — Отправляет email для сброса пароля по имени пользователя.
+	 * Метод resetPasswordByUserName — Отправляет email для сброса пароля по имени
+	 * пользователя.
 	 * 
 	 * @param username Имя пользователя.
 	 * @throws IllegalStateException если email пользователя не найден.
@@ -107,7 +115,10 @@ public class VerifiedService {
 	 * @since 10.02.2025
 	 */
 	private void sendVerificationEmail(String email) {
-		sendMessageToEmail(new EmailMessage(email, MessageType.VERIFICATION, "http://example.ru"));
+		EmailMessage emailMessage = new EmailMessage(email, MessageType.VERIFICATION);
+		String link = linkTemplate(verificationService.generateAndSaveVerificationToken(emailMessage));
+		emailMessage.setLink(link);
+		sendMessageToEmail(emailMessage);
 	}
 
 	/**
@@ -117,6 +128,14 @@ public class VerifiedService {
 	 * @since 10.02.2025
 	 */
 	private void sendResetPasswordEmail(String email) {
-		sendMessageToEmail(new EmailMessage(email, MessageType.PASSWORD_RESET, "http://example.ru"));
+		EmailMessage emailMessage = new EmailMessage(email, MessageType.PASSWORD_RESET);
+		String link = linkTemplate(verificationService.generateAndSaveVerificationToken(emailMessage));
+		emailMessage.setLink(link);
+
+		sendMessageToEmail(emailMessage);
+	}
+
+	private String linkTemplate(String token) {
+		return "http://localhost:8080/api/v1/Сonfirming/"+token;
 	}
 }

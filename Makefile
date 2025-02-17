@@ -3,7 +3,7 @@ start:
 	
 restart:
 	make clear
-	make start
+	make cm
 	
 clear:
 	docker compose down --volumes

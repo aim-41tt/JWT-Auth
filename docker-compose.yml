@@ -17,7 +17,6 @@ services:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
-      - kafka-ui
     ports:
       - 29092:29092
     hostname: kafka
@@ -46,6 +45,25 @@ services:
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
     networks:
       - app-network
+    depends_on:
+     - kafka
+
+
+  # Redis
+  redis:
+     image: redis:7.0-alpine         
+     container_name: redis
+     command: redis-server /usr/local/etc/redis/redis.conf  
+       
+     ports:
+        - "6379:6379"                
+     configs:
+        - source: redis_config      
+          target: /usr/local/etc/redis/redis.conf
+     restart: unless-stopped
+     networks:
+        - app-network
+
 
   # Email Verifier
   email-verifier:
@@ -64,6 +82,7 @@ services:
     networks:
       - app-network
 
+
   # Main Database
   main-db:
     image: postgres:latest
@@ -77,6 +96,7 @@ services:
     networks:
       - app-network
 
+
   # JWT Auth Service
   jwt-auth:
     build:
@@ -86,12 +106,17 @@ services:
     environment:
       DATABASE_JDBC_URL: jdbc:postgresql://main-db:5432/auth?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_HOST: redis://custom_user:custom_password@redis:6379
+      REDIS_PORT: 6379
       CONSUMER_GROUP_ID: JWT-AUTH
       KAFKA_LISTENER_CONCURRENCY: 2
       KEYSTORE_PATH: ${KEYSTORE_PATH}
       KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
       KEYSTORE_TYPE: ${KEYSTORE_TYPE}
       KEYSTORE: "baeldung"
+    depends_on:
+      - kafka
+      - redis
     ports:
       - "8080:8080"
     networks:
@@ -100,3 +125,8 @@ services:
 networks:
   app-network:
     driver: bridge
+
+configs:  
+  redis_config:
+   file: ./redis.conf            # файл конфигурации Redis
+

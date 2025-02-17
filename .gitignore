@@ -73,4 +73,7 @@ build/
 .env
 
 # ssl
-src/main/resources/*.p12 
+src/main/resources/*.p12
+
+# redis
+redis.conf

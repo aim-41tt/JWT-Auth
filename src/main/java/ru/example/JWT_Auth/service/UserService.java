@@ -8,6 +8,7 @@ import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
+import ru.example.JWT_Auth.service.confirmations.VerifiedService;
 
 /**
  * Сервис для управления пользователями.

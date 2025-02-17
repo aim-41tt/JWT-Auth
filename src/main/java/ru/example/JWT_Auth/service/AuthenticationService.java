@@ -14,6 +14,7 @@ import ru.example.JWT_Auth.config.JwtService;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
+import ru.example.JWT_Auth.service.confirmations.VerifiedService;
 
 /**
  * Сервис для аутентификации и регистрации пользователей.

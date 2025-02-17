@@ -28,7 +28,7 @@ public class KafkaProducer {
 
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
-	private static final String TOPIC_NAME = "verifier";
+	private static final String TOPIC_NAME = "verifer";
 
 	/**
 	 * Конструктор KafkaProducer — инициализирует KafkaTemplate и ObjectMapper.
