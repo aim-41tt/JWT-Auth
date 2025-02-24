@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String username;
 
         // Проверка заголовка и извлечение токена
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ") && authHeader.length() > 7) {
             filterChain.doFilter(request, response);
             return;
         }

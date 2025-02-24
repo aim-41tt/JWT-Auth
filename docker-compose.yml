@@ -50,9 +50,8 @@ services:
 
 
   # Redis
-  redis:
-     image: redis:7.0-alpine         
-     container_name: redis
+  redis-db:
+     image: redis:latest
      command: redis-server /usr/local/etc/redis/redis.conf  
        
      ports:
@@ -106,8 +105,7 @@ services:
     environment:
       DATABASE_JDBC_URL: jdbc:postgresql://main-db:5432/auth?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      REDIS_HOST: redis://custom_user:custom_password@redis:6379
-      REDIS_PORT: 6379
+      REDIS_HOST: redis://default:default_password@redis-db:6379
       CONSUMER_GROUP_ID: JWT-AUTH
       KAFKA_LISTENER_CONCURRENCY: 2
       KEYSTORE_PATH: ${KEYSTORE_PATH}
@@ -116,7 +114,7 @@ services:
       KEYSTORE: "baeldung"
     depends_on:
       - kafka
-      - redis
+      - redis-db
     ports:
       - "8080:8080"
     networks:

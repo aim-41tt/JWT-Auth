@@ -52,13 +52,13 @@ public class UserController {
 	@PutMapping("/verified")
 	public ResponseEntity<String> updateProfile(@AuthenticationPrincipal User userDetails) {
 		userService.verifiedEmailUser(userDetails);
-		return ResponseEntity.ok("прооваверте почту");
+		return ResponseEntity.ok("проверьте почту");
 	}
 	
 	@PutMapping("/resetPassword")
 	public ResponseEntity<String> resetPasswordProfile(@AuthenticationPrincipal User userDetails) {
 		userService.resetPasswordUser(userDetails);
-		return ResponseEntity.ok("прооваверте почту");
+		return ResponseEntity.ok("проверьте почту");
 	}
 
 }
