@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
-import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
 import ru.example.JWT_Auth.DTO.request.resetPassword.ResetUserPassword;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.service.UserService;
@@ -14,6 +13,7 @@ import ru.example.JWT_Auth.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -59,7 +59,12 @@ public class UserController {
 	
 	@PutMapping("/resetPassword")
 	public ResponseEntity<String> resetPasswordProfile(@AuthenticationPrincipal User userDetails, @RequestBody ResetUserPassword resetPassword) {
-		userService.resetPasswordUser(userDetails, resetPassword);
+		try {
+			userService.resetPasswordUser(userDetails, resetPassword);
+		} catch (Exception e) {
+			ResponseEntity.status(HttpStatus.ACCEPTED).body(e);
+		}
+		
 		return ResponseEntity.ok("проверьте почту");
 	}
 

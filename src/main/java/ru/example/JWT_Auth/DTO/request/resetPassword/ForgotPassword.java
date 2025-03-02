@@ -4,11 +4,11 @@ public class ForgotPassword implements ResetPassword {
 
 	private String password;
 
-	/**
-	 * @param password
-	 */
 	public ForgotPassword(String password) {
 		this.password = password;
+	}
+
+	public ForgotPassword() {
 	}
 
 	@Override

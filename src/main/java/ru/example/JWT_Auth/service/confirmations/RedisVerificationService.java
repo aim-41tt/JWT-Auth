@@ -105,11 +105,16 @@ public class RedisVerificationService {
 			this.email = emailMessage.getEmail();
 			this.messageType = emailMessage.getMessageType();
 			this.resetPassword = (resetPassword != null && resetPassword.length > 0) ? resetPassword[0] : null;
+			
+		}
 
+		@Override
+		public String toString() {
+			return "TokenData [email=" + email + ", messageType=" + messageType + ", resetPassword=" + resetPassword
+					+ "]";
 		}
 
 		public TokenData() {
-			// TODO Auto-generated constructor stub
 		}
 
 		/**
@@ -120,13 +125,6 @@ public class RedisVerificationService {
 		}
 
 		/**
-		 * @param email the email to set
-		 */
-		public void setEmail(String email) {
-			this.email = email;
-		}
-
-		/**
 		 * @return the messageType
 		 */
 		public MessageType getMessageType() {
@@ -134,24 +132,10 @@ public class RedisVerificationService {
 		}
 
 		/**
-		 * @param messageType the messageType to set
-		 */
-		public void setMessageType(MessageType messageType) {
-			this.messageType = messageType;
-		}
-
-		/**
 		 * @return the resetPassword
 		 */
 		public ResetPassword getResetPassword() {
 			return resetPassword;
-		}
-
-		/**
-		 * @param resetPassword the resetPassword to set
-		 */
-		public void setResetPassword(ResetPassword resetPassword) {
-			this.resetPassword = resetPassword;
 		}
 
 	}

@@ -16,6 +16,7 @@ public class UserActionVerifer {
 
 	private final UserRepository userRepository;
 	private PasswordEncoder passwordEncoder;
+//	private static final Logger logger = LoggerFactory.getLogger(UserActionVerifer.class);
 
 	/**
 	 * @param userRepository
@@ -33,7 +34,11 @@ public class UserActionVerifer {
 
 	@Transactional
 	private void resetPasswordUser(Long id, String oldPassword, String password) {
-		userRepository.updatePasswordIfMatch(id, passwordEncoder.encode(oldPassword), passwordEncoder.encode(password));
+		User user = userRepository.findById(id).get();
+		if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+			userRepository.updatePassword(id, passwordEncoder.encode(password));
+		}
+
 	}
 
 	@Transactional

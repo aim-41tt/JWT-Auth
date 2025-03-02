@@ -14,6 +14,9 @@ public class ResetUserPassword implements ResetPassword {
 		this.password = password;
 	}
 
+	public ResetUserPassword() {
+	}
+
 	/**
 	 * @return the password
 	 */

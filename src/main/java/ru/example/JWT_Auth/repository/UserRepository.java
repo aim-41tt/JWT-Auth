@@ -20,15 +20,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<String> findUserEmailByUsername(@Param("username") String username);
 
 	@Modifying
-	@Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :id AND u.password = :oldPassword")
-	void updatePasswordIfMatch(@Param("id") Long id, @Param("oldPassword") String oldPassword,
-			@Param("newPassword") String newPassword);
-	
+	@Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :id")
+	void updatePassword(@Param("id") Long id, @Param("newPassword") String newPassword);
+
 	@Modifying
 	@Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :id")
 	void updatePasswordById(@Param("id") Long id, @Param("newPassword") String newPassword);
 
-	
 	@Modifying
 	@Query("UPDATE User u SET u.verified = true WHERE u.email = :email AND u.verified = false")
 	void verifyUserByEmail(@Param("email") String email);

@@ -1,6 +1,5 @@
 package ru.example.JWT_Auth.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
