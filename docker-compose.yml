@@ -50,18 +50,37 @@ services:
 
 
   # Redis
-  redis-db:
+  redis:
      image: redis:latest
-     command: redis-server /usr/local/etc/redis/redis.conf  
-       
+     container_name: redis
+     environment:
+       - REDIS_PASSWORD=${REDIS_PASSWORD}
+       - REDIS_USER=${REDIS_USER}
+       - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
      ports:
-        - "6379:6379"                
-     configs:
-        - source: redis_config      
-          target: /usr/local/etc/redis/redis.conf
+       - "6379:6379"
+     volumes:
+       - redis-data:/var/lib/redis/data
+       - ./config/redis/redis.conf:/etc/redis/redis.conf
+     deploy:
+       resources:
+         limits:
+           cpus: '0.50'
+           memory: 512M
+         reservations:
+           cpus: '0.25'
+           memory: 256M
+     command: redis-server /etc/redis/redis.conf
+     healthcheck:
+       test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+       interval: 30s
+       timeout: 10s
+       retries: 5
      restart: unless-stopped
+     tty: true
+     stdin_open: true
      networks:
-        - app-network
+       - app-network
 
 
   # Email Verifier
@@ -105,16 +124,18 @@ services:
     environment:
       DATABASE_JDBC_URL: jdbc:postgresql://main-db:5432/auth?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      REDIS_HOST: redis://default:default_password@redis-db:6379
+      REDIS_HOST: redis://redis:redis@redis:6379
+      TTL_REDIS_CACHE: 15
       CONSUMER_GROUP_ID: JWT-AUTH
       KAFKA_LISTENER_CONCURRENCY: 2
       KEYSTORE_PATH: ${KEYSTORE_PATH}
       KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
       KEYSTORE_TYPE: ${KEYSTORE_TYPE}
       KEYSTORE: "baeldung"
+      APP_BASE-URL: https://localhost:8080
     depends_on:
       - kafka
-      - redis-db
+      - redis
     ports:
       - "8080:8080"
     networks:
@@ -124,7 +145,7 @@ networks:
   app-network:
     driver: bridge
 
-configs:  
-  redis_config:
-   file: ./redis.conf            # файл конфигурации Redis
+volumes:
+  redis-data:
+
 
