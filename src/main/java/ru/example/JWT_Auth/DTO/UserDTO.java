@@ -1,5 +1,6 @@
 package ru.example.JWT_Auth.DTO;
 
+import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 
 public class UserDTO {
@@ -28,6 +29,14 @@ public class UserDTO {
 		this.role = role;
 	}
 
+	
+	public UserDTO(User user) {
+		this.id = user.getId();
+		this.username = user.getUsername();
+		this.email = user.getEmail();
+		this.verified = user.getVerified();
+		this.role = user.getRole();
+	}
 	/**
 	 * @param username
 	 * @param email

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
+import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
 import ru.example.JWT_Auth.service.confirmations.VerifiedService;
@@ -105,8 +106,8 @@ public class UserService {
 	 * @param user Объект пользователя.
 	 * @since 10.02.2025
 	 */
-	public void resetPasswordUser(User user) {
-		verifiedService.resetPasswordByUser(user);
+	public void resetPasswordUser(User user, ResetPassword resetPassword){
+		verifiedService.resetPasswordByUser(user, resetPassword);
 	}
 
 	/**

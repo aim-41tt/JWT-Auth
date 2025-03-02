@@ -36,9 +36,11 @@ public class SecurityConfig {
 	protected SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     	return http
     		.csrf(csrf -> csrf.disable())
+    		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    		.httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(authorize -> authorize
             		.requestMatchers("/api-docs/**", "/swagger-ui.html", "/swagger-ui/**"
-            				, "/api/v1/auth/**")
+            				, "/api/v1/auth/**","/api/v1/confirming/**")
             		.permitAll()
             		.anyRequest()
             		.authenticated()

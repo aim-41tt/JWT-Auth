@@ -92,6 +92,21 @@ public class User implements UserDetails {
 	}
 
 	/**
+	 * @param id
+	 * @param username
+	 * @param email
+	 * @param verified
+	 * @param role
+	 */
+	public User(Long id, String username, String email, Boolean verified, Role role) {
+		this.id = id;
+		this.username = username;
+		this.email = email;
+		this.verified = verified;
+		this.role = role;
+	}
+
+	/**
 	 * @param username
 	 * @param password
 	 * @param email

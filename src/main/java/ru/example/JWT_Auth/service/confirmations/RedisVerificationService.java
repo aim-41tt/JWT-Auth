@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
 import ru.example.JWT_Auth.model.email.EmailMessage;
 import ru.example.JWT_Auth.model.email.enums.MessageType;
 
@@ -22,15 +23,15 @@ public class RedisVerificationService {
 
 	// RedisTemplate для работы с Redis, настроенный в RedisCacheConfig
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final UserActionVerifer actionVerifer;
 
 	/**
-	 * Конструктор сервиса.
-	 *
-	 * @param redisTemplate бин для работы с Redis
+	 * @param redisTemplate
+	 * @param actionVerifer
 	 */
-	public RedisVerificationService(RedisTemplate<String, Object> redisTemplate) {
+	public RedisVerificationService(RedisTemplate<String, Object> redisTemplate, UserActionVerifer actionVerifer) {
 		this.redisTemplate = redisTemplate;
-
+		this.actionVerifer = actionVerifer;
 	}
 
 	/**
@@ -40,11 +41,11 @@ public class RedisVerificationService {
 	 * @param emailMessage объект с данными письма для верификации
 	 * @return сгенерированный токен (UUID в виде строки)
 	 */
-	public String generateAndSaveVerificationToken(EmailMessage emailMessage) {
+	public String generateAndSaveVerificationToken(EmailMessage emailMessage, ResetPassword... resetPassword) {
 		// Генерируем уникальный токен
 		String token = UUID.randomUUID().toString();
 		// Оборачиваем emailMessage в объект TokenData, который реализует Serializable
-		TokenData tokenData = new TokenData(emailMessage);
+		TokenData tokenData = new TokenData(emailMessage, resetPassword);
 		// Сохраняем токен в Redis с TTL 15 минут
 		redisTemplate.opsForValue().set(token, tokenData, Duration.ofMinutes(TOKEN_LIFETIME_MINUTES));
 		return token;
@@ -69,8 +70,24 @@ public class RedisVerificationService {
 		TokenData tokenData = (TokenData) data;
 		// Удаляем токен, чтобы предотвратить повторное использование
 		redisTemplate.delete(token);
-
+		confirm(tokenData);
 		return tokenData.toString();
+	}
+
+	private Boolean confirm(TokenData tokenData) {
+		switch (tokenData.getMessageType()) {
+		case VERIFICATION: {
+			actionVerifer.verificationUser(tokenData.getEmail());
+			break;
+		}
+		case PASSWORD_RESET: {
+			actionVerifer.resetPasswordUser(tokenData.getResetPassword(), tokenData.getEmail());
+			break;
+		}
+		default:
+			break;
+		}
+		return true;
 	}
 
 	/**
@@ -82,10 +99,13 @@ public class RedisVerificationService {
 
 		private String email;
 		private MessageType messageType;
+		private ResetPassword resetPassword;
 
-		public TokenData(EmailMessage emailMessage) {
+		public TokenData(EmailMessage emailMessage, ResetPassword... resetPassword) {
 			this.email = emailMessage.getEmail();
 			this.messageType = emailMessage.getMessageType();
+			this.resetPassword = (resetPassword != null && resetPassword.length > 0) ? resetPassword[0] : null;
+
 		}
 
 		public TokenData() {
@@ -120,9 +140,18 @@ public class RedisVerificationService {
 			this.messageType = messageType;
 		}
 
-		@Override
-		public String toString() {
-			return "TokenData [email=" + email + ", messageType=" + messageType + "]";
+		/**
+		 * @return the resetPassword
+		 */
+		public ResetPassword getResetPassword() {
+			return resetPassword;
+		}
+
+		/**
+		 * @param resetPassword the resetPassword to set
+		 */
+		public void setResetPassword(ResetPassword resetPassword) {
+			this.resetPassword = resetPassword;
 		}
 
 	}
