@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByEmail(String email);
 
-	@Query("SELECT u.email " + "FROM User u " + "WHERE u.username = :username " + "AND u.verified = true")
+	@Query("SELECT u.email FROM User u WHERE u.username = :username AND u.verified = true")
 	Optional<String> findUserEmailByUsername(@Param("username") String username);
 
 	@Modifying
@@ -27,6 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :id")
 	void updatePasswordById(@Param("id") Long id, @Param("newPassword") String newPassword);
 
+	@Query("SELECT u.password FROM User u WHERE u.id = :id")
+	Optional<String> findPasswordById(@Param("id") Long id);
+	
 	@Modifying
 	@Query("UPDATE User u SET u.verified = true WHERE u.email = :email AND u.verified = false")
 	void verifyUserByEmail(@Param("email") String email);

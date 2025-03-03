@@ -23,13 +23,13 @@ public class RedisVerificationService {
 
 	// RedisTemplate для работы с Redis, настроенный в RedisCacheConfig
 	private final RedisTemplate<String, Object> redisTemplate;
-	private final UserActionVerifer actionVerifer;
+	private final UserActionVerifier actionVerifer;
 
 	/**
 	 * @param redisTemplate
 	 * @param actionVerifer
 	 */
-	public RedisVerificationService(RedisTemplate<String, Object> redisTemplate, UserActionVerifer actionVerifer) {
+	public RedisVerificationService(RedisTemplate<String, Object> redisTemplate, UserActionVerifier actionVerifer) {
 		this.redisTemplate = redisTemplate;
 		this.actionVerifer = actionVerifer;
 	}
