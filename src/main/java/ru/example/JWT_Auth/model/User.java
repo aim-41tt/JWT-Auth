@@ -17,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.model.enums.Role;
 
 /**
@@ -115,6 +116,14 @@ public class User implements UserDetails {
 		this.username = username;
 		this.password = password;
 		this.email = email;
+	}
+	public User(UserDTO userDTO, String password) {
+		this.id = userDTO.getId();
+		this.username = userDTO.getUsername();
+		this.password = password;
+		this.email = userDTO.getEmail();
+		this.verified = userDTO.getVerified();
+		this.role = userDTO.getRole();
 	}
 
 	public User() {

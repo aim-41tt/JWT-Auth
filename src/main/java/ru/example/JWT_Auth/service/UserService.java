@@ -9,6 +9,7 @@ import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
 import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
+import ru.example.JWT_Auth.service.cahe.UserCacheService;
 import ru.example.JWT_Auth.service.confirmations.VerifiedService;
 
 /**
@@ -20,7 +21,7 @@ import ru.example.JWT_Auth.service.confirmations.VerifiedService;
  * </p>
  * 
  * @author aim_41tt
- * @version 1.0
+ * @version 1.1
  * @since 10.02.2025
  */
 @Service
@@ -28,18 +29,22 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final VerifiedService verifiedService;
+	private final UserCacheService userCacheService;
 
 	/**
 	 * Конструктор UserService — инициализирует сервис с репозиторием пользователей
 	 * и сервисом верификации email.
-	 *
+	 * 
+	 * @param userCacheService сервис кеширывания пользователей.
 	 * @param userRepository  Репозиторий для работы с пользователями.
 	 * @param verifiedService Сервис для верификации email.
 	 * @since 10.02.2025
 	 */
-	public UserService(UserRepository userRepository, VerifiedService verifiedService) {
+	public UserService(UserRepository userRepository, VerifiedService verifiedService,
+			UserCacheService userCacheService) {
 		this.userRepository = userRepository;
 		this.verifiedService = verifiedService;
+		this.userCacheService = userCacheService;
 	}
 
 	/**
@@ -52,9 +57,7 @@ public class UserService {
 	 */
 	@Transactional
 	public UserDTO getUserProfile(String username) {
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		return mapToDto(user);
+		return userCacheService.getCachedUser(username);
 	}
 
 	/**
@@ -87,7 +90,9 @@ public class UserService {
 		}
 
 		User updatedUser = userRepository.save(user);
-		return mapToDto(updatedUser);
+		UserDTO userDTO= mapToDto(updatedUser);
+		userCacheService.cacheUser(userDTO);
+		return userDTO;
 	}
 
 	/**
@@ -98,6 +103,7 @@ public class UserService {
 	 */
 	public void verifiedEmailUser(User user) {
 		verifiedService.verifiedByUser(user);
+		userCacheService.removeUserFromCache(user.getUsername());
 	}
 
 	/**

@@ -47,7 +47,7 @@ public class RedisVerificationService {
 		// Оборачиваем emailMessage в объект TokenData, который реализует Serializable
 		TokenData tokenData = new TokenData(emailMessage, resetPassword);
 		// Сохраняем токен в Redis с TTL 15 минут
-		redisTemplate.opsForValue().set(token, tokenData, Duration.ofMinutes(TOKEN_LIFETIME_MINUTES));
+		redisTemplate.opsForValue().set(buildKeyTemplate(token), tokenData, Duration.ofMinutes(TOKEN_LIFETIME_MINUTES));
 		return token;
 	}
 
@@ -61,7 +61,7 @@ public class RedisVerificationService {
 	 */
 	public String verifyToken(String token) {
 		// Извлекаем объект TokenData по ключу token
-		Object data = redisTemplate.opsForValue().get(token);
+		Object data = redisTemplate.opsForValue().get(buildKeyTemplate(token));
 		if (data == null) {
 			// Токен отсутствует или его TTL истек
 			return null;
@@ -69,12 +69,12 @@ public class RedisVerificationService {
 		// Приводим извлеченный объект к нужному типу
 		TokenData tokenData = (TokenData) data;
 		// Удаляем токен, чтобы предотвратить повторное использование
-		redisTemplate.delete(token);
+		redisTemplate.delete(buildKeyTemplate(token));
 		confirm(tokenData);
 		return tokenData.toString();
 	}
 
-	private Boolean confirm(TokenData tokenData) {
+	private void confirm(TokenData tokenData) {
 		switch (tokenData.getMessageType()) {
 		case VERIFICATION: {
 			actionVerifer.verificationUser(tokenData.getEmail());
@@ -87,7 +87,10 @@ public class RedisVerificationService {
 		default:
 			break;
 		}
-		return true;
+	}
+	
+	private String buildKeyTemplate(String text) {
+		return "TOKEN-DATA:"+text;
 	}
 
 	/**

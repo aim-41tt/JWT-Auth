@@ -103,20 +103,6 @@ public class VerifiedService {
 	}
 
 	/**
-	 * Метод resetPasswordByUserName — Отправляет email для сброса пароля по имени
-	 * пользователя.
-	 * 
-	 * @param username Имя пользователя.
-	 * @throws IllegalStateException если email пользователя не найден.
-	 * @since 10.02.2025
-	 */
-//	public void resetPasswordByUserName(String username) {
-//		String userEmail = repository.findUserEmailByUsername(username)
-//				.orElseThrow(() -> new IllegalStateException("Email пользователя не найден"));
-////		sendResetPasswordEmail(userEmail);
-//	}
-
-	/**
 	 * Метод sendVerificationEmail — Отправляет email для верификации.
 	 *
 	 * @param email Email пользователя.
