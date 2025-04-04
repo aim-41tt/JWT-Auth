@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import ru.example.JWT_Auth.DTO.UserDTO;
+import ru.example.JWT_Auth.DTO.admin.AdminUserDTO;
 import ru.example.JWT_Auth.model.enums.Role;
 
 /**
@@ -57,6 +60,9 @@ public class User implements UserDetails {
 	@Column(nullable = false)
 	private Role role;
 
+	@Column(nullable = false)
+	private Boolean locked = false;
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority(role.name()));
@@ -95,6 +101,25 @@ public class User implements UserDetails {
 	/**
 	 * @param id
 	 * @param username
+	 * @param password
+	 * @param email
+	 * @param verified
+	 * @param role
+	 * @param locked
+	 */
+	public User(Long id, String username, String password, String email, Boolean verified, Role role, Boolean locked) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.verified = verified;
+		this.role = role;
+		this.locked = locked;
+	}
+
+	/**
+	 * @param id
+	 * @param username
 	 * @param email
 	 * @param verified
 	 * @param role
@@ -117,6 +142,7 @@ public class User implements UserDetails {
 		this.password = password;
 		this.email = email;
 	}
+
 	public User(UserDTO userDTO, String password) {
 		this.id = userDTO.getId();
 		this.username = userDTO.getUsername();
@@ -124,6 +150,21 @@ public class User implements UserDetails {
 		this.email = userDTO.getEmail();
 		this.verified = userDTO.getVerified();
 		this.role = userDTO.getRole();
+	}
+
+	public User(AdminUserDTO adminUserDTO) {
+		this.id = adminUserDTO.getId();
+		this.username = adminUserDTO.getUsername();
+		this.password = null;
+		this.email = adminUserDTO.getEmail();
+		this.verified = adminUserDTO.getVerified();
+		this.role = adminUserDTO.getRole();
+		this.locked = adminUserDTO.getLocked();
+	}
+
+	@JsonIgnore
+	public AdminUserDTO getAdminUserDTO() {
+		return new AdminUserDTO(this);
 	}
 
 	public User() {
@@ -215,6 +256,20 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
+	/**
+	 * @return the locked
+	 */
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	/**
+	 * @param locked the locked to set
+	 */
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(email, id, password, role, username);
@@ -232,6 +287,10 @@ public class User implements UserDetails {
 		return Objects.equals(email, other.email) && Objects.equals(id, other.id)
 				&& Objects.equals(password, other.password) && role == other.role
 				&& Objects.equals(username, other.username);
+	}
+
+	public boolean Valid() {
+		return id != null && !username.isEmpty() && role != null && !email.isEmpty();
 	}
 
 	@Override
@@ -283,4 +342,5 @@ public class User implements UserDetails {
 			return new User(id, username, password, email, verified, role);
 		}
 	}
+
 }

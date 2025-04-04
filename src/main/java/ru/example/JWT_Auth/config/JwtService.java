@@ -52,6 +52,7 @@ public class JwtService {
 		extraClaims.put("email", userDetails.getEmail());
 		extraClaims.put("verified", userDetails.getVerified());
 		extraClaims.put("role", userDetails.getRole());
+		extraClaims.put("locked", userDetails.getLocked());
 		return Jwts.builder()
 				.setClaims(extraClaims)
 				.setSubject(userDetails.getUsername())

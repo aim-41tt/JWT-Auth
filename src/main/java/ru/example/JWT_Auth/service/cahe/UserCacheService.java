@@ -1,5 +1,7 @@
 package ru.example.JWT_Auth.service.cahe;
 
+import java.time.Duration;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +10,7 @@ import ru.example.JWT_Auth.DTO.UserDTO;
 @Service
 public class UserCacheService {
 	private final RedisTemplate<String, Object> redisTemplate;
-
+	private static final int TTL = 10;
 	/**
 	 * @param redisTemplate
 	 */
@@ -18,7 +20,7 @@ public class UserCacheService {
 
 	public void cacheUser(UserDTO user) {
 			String key = "user:" + user.getUsername();
-			redisTemplate.opsForValue().set(key, user);
+			redisTemplate.opsForValue().set(key, user,  Duration.ofMinutes(TTL));
 	}
 
 	public UserDTO getCachedUser(String username) {

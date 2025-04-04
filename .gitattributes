@@ -1,0 +1,5 @@
+*.java linguist-detectable=true
+*.xml linguist-detectable=true
+*.yml linguist-detectable=true
+*.md linguist-documentation
+docker-compose.yml linguist-language=Docker-compose

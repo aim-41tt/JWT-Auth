@@ -19,6 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import ru.example.JWT_Auth.filter.JwtAuthenticationFilter;
+import ru.example.JWT_Auth.model.enums.Role;
 
 @Configuration
 @EnableWebSecurity
@@ -41,6 +42,7 @@ public class SecurityConfig {
     		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(authorize -> authorize
+            		.requestMatchers("api/admin/**").hasAuthority(Role.ADMIN.name())
             		.requestMatchers(getHttpPermitAll())
             		.permitAll()
             		.anyRequest()
