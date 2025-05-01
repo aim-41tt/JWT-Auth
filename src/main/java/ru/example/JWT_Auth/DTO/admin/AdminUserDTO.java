@@ -1,12 +1,14 @@
 package ru.example.JWT_Auth.DTO.admin;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 
 public class AdminUserDTO {
-	private Long id;
+	private UUID id;
 	private String username;
 	private String password;
 	private String email;
@@ -23,7 +25,7 @@ public class AdminUserDTO {
 	 * @param role
 	 * @param locked
 	 */
-	public AdminUserDTO(Long id, String username, String password, String email, Boolean verified, Role role,
+	public AdminUserDTO(UUID id, String username, String password, String email, Boolean verified, Role role,
 			Boolean locked) {
 		this.id = id;
 		this.username = username;
@@ -67,14 +69,14 @@ public class AdminUserDTO {
 	/**
 	 * @return the id
 	 */
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

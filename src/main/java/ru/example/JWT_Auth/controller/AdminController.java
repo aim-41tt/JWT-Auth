@@ -1,6 +1,7 @@
 package ru.example.JWT_Auth.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,12 +38,12 @@ public class AdminController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AdminUserDTO> getUserById(@PathVariable Long id) {
+	public ResponseEntity<AdminUserDTO> getUserById(@PathVariable UUID id) {
 		return ResponseEntity.ok(adminService.getUserById(id));
 	}
 	
 	@GetMapping("/ids")
-	public ResponseEntity<List<AdminUserDTO>> getUserById(@RequestBody List<Long> id) {
+	public ResponseEntity<List<AdminUserDTO>> getUserById(@RequestBody List<UUID> id) {
 		return ResponseEntity.ok(adminService.getUsersByid(id));
 	}
 
@@ -57,23 +58,23 @@ public class AdminController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+	public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
 		adminService.deleteUser(id);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PatchMapping("/{id}/role")
-	public ResponseEntity<AdminUserDTO> updateUserRole(@PathVariable Long id, @RequestParam Role role) {
+	public ResponseEntity<AdminUserDTO> updateUserRole(@PathVariable UUID id, @RequestParam Role role) {
 		return ResponseEntity.ok(adminService.updateUserRole(id, role));
 	}
 
 	@PatchMapping("/{id}/block")
-	public ResponseEntity<AdminUserDTO> blockUser(@PathVariable Long id) {
+	public ResponseEntity<AdminUserDTO> blockUser(@PathVariable UUID id) {
 		return ResponseEntity.ok(adminService.blockUser(id));
 	}
 
 	@PatchMapping("/{id}/unblock")
-	public ResponseEntity<AdminUserDTO> unblockUser(@PathVariable Long id) {
+	public ResponseEntity<AdminUserDTO> unblockUser(@PathVariable UUID id) {
 		return ResponseEntity.ok(adminService.unblockUser(id));
 	}
 

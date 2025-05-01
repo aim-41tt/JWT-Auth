@@ -1,10 +1,12 @@
 package ru.example.JWT_Auth.DTO;
 
+import java.util.UUID;
+
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 
 public class UserDTO {
-	private Long id;
+	private UUID id;
 	private String username;
 	private String email;
 	private Boolean verified;
@@ -21,7 +23,7 @@ public class UserDTO {
 	 * @param verified
 	 * @param role
 	 */
-	public UserDTO(Long id, String username, String email, Boolean verified, Role role) {
+	public UserDTO(UUID id, String username, String email, Boolean verified, Role role) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
@@ -53,14 +55,14 @@ public class UserDTO {
 	/**
 	 * @return the id
 	 */
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

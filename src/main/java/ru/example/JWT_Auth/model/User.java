@@ -4,7 +4,10 @@ import java.util.Collection;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +34,7 @@ import ru.example.JWT_Auth.model.enums.Role;
  * </p>
  *
  * @author aim_41tt
- * @version 1.0
+ * @version 1.1
  * @since 10.02.2025
  */
 
@@ -41,8 +44,9 @@ import ru.example.JWT_Auth.model.enums.Role;
 public class User implements UserDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@JdbcTypeCode(SqlTypes.UUID)
+	private UUID id;
 
 	@Column(unique = true, nullable = false, length = 30)
 	private String username;
@@ -89,7 +93,7 @@ public class User implements UserDetails {
 	 * @param verified
 	 * @param role
 	 */
-	public User(Long id, String username, String password, String email, Boolean verified, Role role) {
+	public User(UUID id, String username, String password, String email, Boolean verified, Role role) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
@@ -107,7 +111,7 @@ public class User implements UserDetails {
 	 * @param role
 	 * @param locked
 	 */
-	public User(Long id, String username, String password, String email, Boolean verified, Role role, Boolean locked) {
+	public User(UUID id, String username, String password, String email, Boolean verified, Role role, Boolean locked) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
@@ -124,7 +128,7 @@ public class User implements UserDetails {
 	 * @param verified
 	 * @param role
 	 */
-	public User(Long id, String username, String email, Boolean verified, Role role) {
+	public User(UUID id, String username, String email, Boolean verified, Role role) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
@@ -173,14 +177,14 @@ public class User implements UserDetails {
 	/**
 	 * @return the id
 	 */
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
@@ -300,14 +304,14 @@ public class User implements UserDetails {
 	}
 
 	public static class Builder {
-		private Long id;
+		private UUID id;
 		private String username;
 		private String password;
 		private String email;
 		private Role role;
 		private Boolean verified = false;
 
-		public Builder id(Long id) {
+		public Builder id(UUID id) {
 			this.id = id;
 			return this;
 		}

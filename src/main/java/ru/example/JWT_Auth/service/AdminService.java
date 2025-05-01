@@ -3,6 +3,7 @@ package ru.example.JWT_Auth.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -23,11 +24,11 @@ public class AdminService {
 		this.userRepository = userRepository;
 	}
 
-	public AdminUserDTO getUserById(Long id) {
+	public AdminUserDTO getUserById(UUID id) {
 		return userRepository.findById(id).orElseGet(null).getAdminUserDTO();
 	}
 
-	public List<AdminUserDTO> getUsersByid(List<Long> ids) {
+	public List<AdminUserDTO> getUsersByid(List<UUID> ids) {
 		return userRepository.findAllById(ids).stream().map(t -> t.getAdminUserDTO()).toList();
 	}
 
@@ -49,11 +50,11 @@ public class AdminService {
 		return userAdm;
 	}
 
-	public void deleteUser(Long id) {
+	public void deleteUser(UUID id) {
 		userRepository.delete(userRepository.findById(id).get());
 	}
 
-	public AdminUserDTO updateUserRole(Long id, Role role) {
+	public AdminUserDTO updateUserRole(UUID id, Role role) {
 		Optional<User> userOpt = userRepository.findById(id);
 		User user = null;
 		if (userOpt.isPresent()) {
@@ -64,7 +65,7 @@ public class AdminService {
 		return user.getAdminUserDTO();
 	}
 
-	public AdminUserDTO blockUser(Long id) {
+	public AdminUserDTO blockUser(UUID id) {
 		Optional<User> userOpt = userRepository.findById(id);
 		User user = null;
 		if (userOpt.isPresent() && !userOpt.get().getLocked()) {
@@ -74,7 +75,7 @@ public class AdminService {
 		return user.getAdminUserDTO();
 	}
 
-	public AdminUserDTO unblockUser(Long id) {
+	public AdminUserDTO unblockUser(UUID id) {
 		Optional<User> userOpt = userRepository.findById(id);
 		User user = null;
 		if (userOpt.isPresent() && userOpt.get().getLocked()) {
