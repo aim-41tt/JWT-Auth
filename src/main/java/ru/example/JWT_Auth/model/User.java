@@ -22,6 +22,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.admin.AdminUserDTO;
 import ru.example.JWT_Auth.model.enums.Role;
@@ -54,6 +56,8 @@ public class User implements UserDetails {
 	@Column(nullable = false)
 	private String password;
 
+	@NotEmpty(message = "Email не должен быть пустым")
+	@Email(message = "Некорректный формат email")
 	@Column(unique = true, nullable = false)
 	private String email;
 
@@ -151,6 +155,15 @@ public class User implements UserDetails {
 		this.id = userDTO.getId();
 		this.username = userDTO.getUsername();
 		this.password = password;
+		this.email = userDTO.getEmail();
+		this.verified = userDTO.getVerified();
+		this.role = userDTO.getRole();
+	}
+	
+	public User(UserDTO userDTO) {
+		this.id = userDTO.getId();
+		this.username = userDTO.getUsername();
+		this.password = "";
 		this.email = userDTO.getEmail();
 		this.verified = userDTO.getVerified();
 		this.role = userDTO.getRole();

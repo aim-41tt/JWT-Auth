@@ -131,6 +131,8 @@ services:
       KEYSTORE_PATH: ${KEYSTORE_PATH}
       KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD}
       KEYSTORE_TYPE: ${KEYSTORE_TYPE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP: ${JWT_EXP}
       KEYSTORE: "baeldung"
       APP_BASE-URL: https://localhost:8080
     depends_on:
