@@ -111,6 +111,10 @@ public class RedisVerificationService {
 
 		}
 
+		@SuppressWarnings("unused")
+		public TokenData() {
+		}
+
 		@Override
 		public String toString() {
 			return "TokenData [email=" + email + ", messageType=" + messageType + ", resetPassword=" + resetPassword
