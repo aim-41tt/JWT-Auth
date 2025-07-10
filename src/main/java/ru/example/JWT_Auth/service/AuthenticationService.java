@@ -77,6 +77,9 @@ public class AuthenticationService {
 		if (repository.findByUsername(request.getUsername()).isPresent()) {
 			throw new IllegalArgumentException("Пользователь с именем " + request.getUsername() + " уже существует.");
 		}
+		if (repository.findByEmail(request.getEmail()).isPresent()) {
+			throw new IllegalArgumentException("Пользователь с почтой " + request.getUsername() + " уже существует.");
+		}
 
 		User user = new User.Builder().username(request.getUsername())
 				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)

@@ -10,8 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder.BCryptVersion;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -72,7 +71,12 @@ public class SecurityConfig {
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(BCryptVersion.$2Y);
+        return new Argon2PasswordEncoder(
+        		16,     // длина соли
+        	    32,     // длина хэша
+        	    2,      // параллелизм
+        	    65536,  // память (в KB)
+        	    4       // итерации
+        	    );
     }
-  
 }

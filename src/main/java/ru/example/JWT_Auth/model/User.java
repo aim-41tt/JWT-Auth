@@ -53,7 +53,7 @@ public class User implements UserDetails {
 	@Column(unique = true, nullable = false, length = 30)
 	private String username;
 
-	@Column(nullable = false)
+	@Column(nullable = false,length = 512)
 	private String password;
 
 	@NotEmpty(message = "Email не должен быть пустым")
