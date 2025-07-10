@@ -1,7 +1,5 @@
 package ru.example.JWT_Auth.config;
 
-import java.util.Optional;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,12 +45,7 @@ public class CachedUserDetailsService implements UserDetailsService {
 		return user;
 	}
 
-//	@Transactional
 	private UserDetails convertToUserDetails(UserDTO userDTO) {
-//		Optional<String> password = userRepository.findPasswordById(userDTO.getId());
-//		if (password.isEmpty()) {
-//			throw new UsernameNotFoundException("Username cannot be null or empty");
-//		}
 		return new User(userDTO);
 	}
 }

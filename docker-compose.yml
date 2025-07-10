@@ -133,11 +133,13 @@ services:
       KEYSTORE_TYPE: ${KEYSTORE_TYPE}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXP: ${JWT_EXP}
-      KEYSTORE: "baeldung"
+      KEYSTORE: ${KEYSTORE}
       APP_BASE-URL: https://localhost:8080
     depends_on:
       - kafka
       - redis
+    volumes:
+      - ./ssl:/app/ssl
     ports:
       - "8080:8080"
     networks:

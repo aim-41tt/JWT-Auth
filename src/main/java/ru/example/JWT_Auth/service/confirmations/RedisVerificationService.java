@@ -88,9 +88,9 @@ public class RedisVerificationService {
 			break;
 		}
 	}
-	
+
 	private String buildKeyTemplate(String text) {
-		return "TOKEN-DATA:"+text;
+		return "TOKEN-DATA:" + text;
 	}
 
 	/**
@@ -108,16 +108,13 @@ public class RedisVerificationService {
 			this.email = emailMessage.getEmail();
 			this.messageType = emailMessage.getMessageType();
 			this.resetPassword = (resetPassword != null && resetPassword.length > 0) ? resetPassword[0] : null;
-			
+
 		}
 
 		@Override
 		public String toString() {
 			return "TokenData [email=" + email + ", messageType=" + messageType + ", resetPassword=" + resetPassword
 					+ "]";
-		}
-
-		public TokenData() {
 		}
 
 		/**

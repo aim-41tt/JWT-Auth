@@ -11,14 +11,13 @@ clear:
 cm:
 	docker-compose up -d --build
 	
+.PHONY: config	
 config:
-	cd src/main/resources
-
-	keytool -genkeypair \
+	@cd ssl && keytool -genkeypair \
 		-alias baeldung \
 		-keyalg RSA \
 		-keysize 2048 \
 		-storetype PKCS12 \
-		-keystore baeldung.p12 \
+		-keystore ssl/baeldung.p12 \
 		-validity 3650
 

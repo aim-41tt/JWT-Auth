@@ -1,9 +1,9 @@
 package ru.example.JWT_Auth.config;
 
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -36,9 +36,6 @@ import ru.example.JWT_Auth.model.User;
 @Service
 public class JwtService {
 
-//	private static final String SECRET_KEY = Base64.getEncoder().encodeToString("51e8ea280b44e16934d4d611901f3d3afc41789840acdff81942c2f65009cd52".getBytes());
-//	private static final long TOKEN_EXPIRATION_MS = 1000 * 60 * 60 * 24;
-
 	@Value("${jwt.secret}")
 	private String secretKey;
 
@@ -47,6 +44,10 @@ public class JwtService {
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
+	}
+
+	public UUID extractUserID(String token) {
+		return UUID.fromString(extractClaim(token, Claims::getId));
 	}
 
 	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -67,12 +68,12 @@ public class JwtService {
 	 * @return JWT
 	 */
 	public String generateToken(Map<String, Object> extraClaims, User userDetails) {
-		extraClaims.put("id", userDetails.getId());
 		extraClaims.put("email", userDetails.getEmail());
 		extraClaims.put("verified", userDetails.getVerified());
 		extraClaims.put("locked", userDetails.getLocked());
 		return Jwts.builder()
 				.setClaims(extraClaims)
+				.setId(String.valueOf(userDetails.getId()))
 				.setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
