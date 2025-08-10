@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ru.example.JWT_Auth.DTO.admin.AdminUserDTO;
@@ -15,13 +16,12 @@ import ru.example.JWT_Auth.repository.UserRepository;
 @Service
 public class AdminService {
 
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-	/**
-	 * @param userRepository
-	 */
-	public AdminService(UserRepository userRepository) {
+	public AdminService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	public AdminUserDTO getUserById(UUID id) {
@@ -33,6 +33,7 @@ public class AdminService {
 	}
 
 	public AdminUserDTO saveUser(AdminUserDTO user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user.getUser()).getAdminUserDTO();
 	}
 
@@ -46,7 +47,7 @@ public class AdminService {
 		if (user.Valid()) {
 			return userRepository.save(user).getAdminUserDTO();
 		}
-		
+
 		return userAdm;
 	}
 

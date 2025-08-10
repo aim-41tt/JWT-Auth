@@ -172,7 +172,7 @@ public class User implements UserDetails {
 	public User(AdminUserDTO adminUserDTO) {
 		this.id = adminUserDTO.getId();
 		this.username = adminUserDTO.getUsername();
-		this.password = null;
+		this.password = adminUserDTO.getPassword();
 		this.email = adminUserDTO.getEmail();
 		this.verified = adminUserDTO.getVerified();
 		this.role = adminUserDTO.getRole();
