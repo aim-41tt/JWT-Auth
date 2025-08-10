@@ -61,6 +61,9 @@ public class AdminUserDTO {
 		this.locked = locked;
 	}
 
+	public AdminUserDTO() {
+	}
+
 	@JsonIgnore
 	public User getUser() {
 		return new User(this);
