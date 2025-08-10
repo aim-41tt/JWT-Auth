@@ -54,13 +54,13 @@ public class SecurityConfig {
             		.anyRequest()
             		.authenticated()
                 )
-                .authenticationManager(authenticationManager(userDetailsService,passwordEncoder()))
+                .authenticationManager(authenticationManager(userDetailsService, passwordEncoder()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
 	@Bean
-	protected AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	protected AuthenticationManager authenticationManager(@Qualifier("databaseUserDetailsService") UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
 	    return authentication -> {
 	        String username = authentication.getName();
 	        String password = authentication.getCredentials().toString();

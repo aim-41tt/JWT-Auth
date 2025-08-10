@@ -12,6 +12,16 @@ import ru.example.JWT_Auth.repository.UserRepository;
 import ru.example.JWT_Auth.service.cahe.UserCacheService;
 
 /**
+ * Реализация {@link org.springframework.security.core.userdetails.UserDetailsService},
+ * которая загружает данные пользователя напрямую из базы данных.
+ * <p>
+ * ВНИМАНИЕ: при внедрении этого бина в другие компоненты
+ * необходимо обязательно использовать
+ * {@code @Qualifier("databaseUserDetailsService")}, поскольку в контексте
+ * приложения может быть несколько реализаций {@link org.springframework.security.core.userdetails.UserDetailsService}.
+ * Без явного указания возникнет конфликт бинов при старте приложения.
+ * </p>
+ *
  * @author aim_41tt
  * @version 1.0
  * @since 10.08.2025
