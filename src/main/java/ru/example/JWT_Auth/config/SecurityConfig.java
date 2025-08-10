@@ -1,19 +1,26 @@
 package ru.example.JWT_Auth.config;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import ru.example.JWT_Auth.filter.JwtAuthenticationFilter;
 import ru.example.JWT_Auth.model.enums.Role;
@@ -23,10 +30,10 @@ import ru.example.JWT_Auth.model.enums.Role;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserDetailsService userDetailsService;
+    private final CachedUserDetailsService userDetailsService;
 
 	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-			UserDetailsService userDetailsService) {
+			CachedUserDetailsService userDetailsService) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.userDetailsService = userDetailsService;
 	}
@@ -35,6 +42,7 @@ public class SecurityConfig {
 	protected SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
     	return http
     		.csrf(csrf -> csrf.disable())
+    		.cors(Customizer.withDefaults())
     		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(authorize -> authorize
@@ -50,13 +58,14 @@ public class SecurityConfig {
     }
 
 	@Bean
-	protected AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	protected AuthenticationManager authenticationManager(CachedUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
 	    return authentication -> {
 	        String username = authentication.getName();
 	        String password = authentication.getCredentials().toString();
 
-	        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+	        
+	        UserDetails userDetails = userDetailsService.loadUserFullByUsername(username);
+	        
 	        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
 	            throw new BadCredentialsException("Bad credentials");
 	        }
@@ -67,6 +76,25 @@ public class SecurityConfig {
 	            userDetails.getAuthorities()
 	        );
 	    };
+	}
+	
+	@Bean
+	protected CorsConfigurationSource corsConfigurationSource(@Value("${cors.allowed-origins}") String corsOrigins) {
+
+	    CorsConfiguration config = new CorsConfiguration();
+
+	    List<String> origins = Arrays.stream(corsOrigins.split(","))
+	            .map(String::trim)
+	            .toList();
+	    
+	    config.setAllowedOrigins(origins);
+	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	    config.setAllowedHeaders(List.of("*"));
+	    config.setAllowCredentials(true);
+
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", config);
+	    return source;
 	}
 
     @Bean
