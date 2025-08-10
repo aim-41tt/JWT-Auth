@@ -3,6 +3,7 @@ package ru.example.JWT_Auth.config;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,10 +32,10 @@ import ru.example.JWT_Auth.model.enums.Role;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CachedUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
 	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-			CachedUserDetailsService userDetailsService) {
+			@Qualifier("databaseUserDetailsService") UserDetailsService userDetailsService) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.userDetailsService = userDetailsService;
 	}
@@ -58,13 +60,12 @@ public class SecurityConfig {
     }
 
 	@Bean
-	protected AuthenticationManager authenticationManager(CachedUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	protected AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
 	    return authentication -> {
 	        String username = authentication.getName();
 	        String password = authentication.getCredentials().toString();
 
-	        
-	        UserDetails userDetails = userDetailsService.loadUserFullByUsername(username);
+	        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 	        
 	        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
 	            throw new BadCredentialsException("Bad credentials");
