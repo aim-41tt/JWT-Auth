@@ -51,7 +51,7 @@ public class AdminUserManagementController {
      * @param ids список UUID пользователей
      * @return список найденных пользователей
      */
-    @GetMapping("/ids")
+    @PostMapping("/ids")
     public ResponseEntity<List<AdminUserDTO>> getUsersById(@RequestBody List<UUID> ids) {
         return ResponseEntity.ok(adminService.getUsersByid(ids));
     }
