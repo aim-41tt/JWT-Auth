@@ -1,12 +1,11 @@
 package ru.example.JWT_Auth.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.example.JWT_Auth.DTO.admin.AdminUserDTO;
 import ru.example.JWT_Auth.model.User;
@@ -14,6 +13,7 @@ import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
 
 @Service
+@Transactional
 public class AdminService {
 
 	private final UserRepository userRepository;
@@ -24,74 +24,96 @@ public class AdminService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional(readOnly = true)
 	public AdminUserDTO getUserById(UUID id) {
-		return userRepository.findById(id).orElseGet(null).getAdminUserDTO();
+		return userRepository.findById(id).map(User::getAdminUserDTO)
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
 	}
 
+	@Transactional(readOnly = true)
 	public List<AdminUserDTO> getUsersByid(List<UUID> ids) {
-		return userRepository.findAllById(ids).stream().map(t -> t.getAdminUserDTO()).toList();
+		return userRepository.findAllById(ids).stream().map(User::getAdminUserDTO).toList();
 	}
 
-	public AdminUserDTO saveUser(AdminUserDTO user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return userRepository.save(user.getUser()).getAdminUserDTO();
+	@Transactional(readOnly = true)
+	public AdminUserDTO saveUser(AdminUserDTO aUserDTO) {
+		User user = new User(aUserDTO);
+		user.setPassword(passwordEncoder.encode(aUserDTO.getPassword()));
+		return userRepository.save(user).getAdminUserDTO();
 	}
 
+	@Transactional(readOnly = true)
 	public List<AdminUserDTO> saveUsers(List<AdminUserDTO> users) {
-		return userRepository.saveAll(users.stream().map(u -> u.getUser()).toList()).stream()
-				.map(ua -> ua.getAdminUserDTO()).toList();
+		List<User> entities = users.stream().map(dto -> {
+			User u = dto.getUser();
+			u.setPassword(passwordEncoder.encode(dto.getPassword()));
+			return u;
+		}).toList();
+		return userRepository.saveAll(entities).stream().map(User::getAdminUserDTO).toList();
 	}
 
-	public AdminUserDTO updateUser(Long id, AdminUserDTO userAdm) {
-		User user = new User(userAdm);
-		if (user.Valid()) {
-			return userRepository.save(user).getAdminUserDTO();
+	@Transactional(readOnly = true)
+	public AdminUserDTO updateUser(UUID id, AdminUserDTO userDto) {
+		User existingUser = userRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+		if (userDto.getUsername() != null) {
+			existingUser.setUsername(userDto.getUsername());
+		}
+		if (userDto.getEmail() != null) {
+			existingUser.setEmail(userDto.getEmail());
+			existingUser.setVerified(false);
+		}
+		if (userDto.getRole() != null) {
+			existingUser.setRole(userDto.getRole());
 		}
 
-		return userAdm;
+		if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+			existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		}
+
+		return userRepository.save(existingUser).getAdminUserDTO();
 	}
 
 	public void deleteUser(UUID id) {
-		userRepository.delete(userRepository.findById(id).get());
+		if (!userRepository.existsById(id)) {
+			throw new IllegalArgumentException("User not found: " + id);
+		}
+		userRepository.deleteById(id);
 	}
 
+	@Transactional(readOnly = true)
 	public AdminUserDTO updateUserRole(UUID id, Role role) {
-		Optional<User> userOpt = userRepository.findById(id);
-		User user = null;
-		if (userOpt.isPresent()) {
-			user = userOpt.get();
-			user.setRole(role);
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+		user.setRole(role);
+		return userRepository.save(user).getAdminUserDTO();
+	}
+
+	@Transactional(readOnly = true)
+	public AdminUserDTO blockUser(UUID id) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+		if (!Boolean.TRUE.equals(user.getLocked())) {
+			user.setLocked(true);
 			userRepository.save(user);
 		}
 		return user.getAdminUserDTO();
 	}
 
-	public AdminUserDTO blockUser(UUID id) {
-		Optional<User> userOpt = userRepository.findById(id);
-		User user = null;
-		if (userOpt.isPresent() && !userOpt.get().getLocked()) {
-			user = userOpt.get();
-			user.setLocked(true);
-		}
-		return user.getAdminUserDTO();
-	}
-
+	@Transactional(readOnly = true)
 	public AdminUserDTO unblockUser(UUID id) {
-		Optional<User> userOpt = userRepository.findById(id);
-		User user = null;
-		if (userOpt.isPresent() && userOpt.get().getLocked()) {
-			user = userOpt.get();
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+		if (Boolean.TRUE.equals(user.getLocked())) {
 			user.setLocked(false);
+			userRepository.save(user);
 		}
 		return user.getAdminUserDTO();
 	}
 
+	@Transactional(readOnly = true)
 	public List<AdminUserDTO> getAllUsers() {
-		List<User> users = userRepository.findAll();
-		if (users == null || users.isEmpty()) {
-			return new ArrayList<AdminUserDTO>();
-		}
-		return users.stream().map(u -> u.getAdminUserDTO()).toList();
+		return userRepository.findAll().stream().map(User::getAdminUserDTO).toList();
 	}
 
 }
