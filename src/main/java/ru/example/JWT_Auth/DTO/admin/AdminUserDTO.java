@@ -1,55 +1,72 @@
-package ru.example.JWT_Auth.DTO;
+package ru.example.JWT_Auth.DTO.admin;
 
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 
-public class UserDTO {
+public class AdminUserDTO {
 	private UUID id;
 	private String username;
+	private String password;
 	private String email;
 	private Boolean verified;
 	private Role role;
-
-	public UserDTO() {
-		// TODO Auto-generated constructor stub
-	}
+	private Boolean locked;
 
 	/**
 	 * @param id
 	 * @param username
+	 * @param password
 	 * @param email
 	 * @param verified
 	 * @param role
+	 * @param locked
 	 */
-	public UserDTO(UUID id, String username, String email, Boolean verified, Role role) {
+	public AdminUserDTO(UUID id, String username, String password, String email, Boolean verified, Role role,
+			Boolean locked) {
 		this.id = id;
 		this.username = username;
+		this.password = password;
 		this.email = email;
 		this.verified = verified;
 		this.role = role;
+		this.locked = locked;
 	}
 
-	
-	public UserDTO(User user) {
+	public AdminUserDTO(User user) {
 		this.id = user.getId();
 		this.username = user.getUsername();
+		this.password = null;
 		this.email = user.getEmail();
 		this.verified = user.getVerified();
 		this.role = user.getRole();
+		this.locked = user.getLocked();
 	}
+
 	/**
 	 * @param username
 	 * @param email
 	 * @param verified
 	 * @param role
+	 * @param locked
 	 */
-	public UserDTO(String username, String email, Boolean verified, Role role) {
+	public AdminUserDTO(String username, String email, Boolean verified, Role role, Boolean locked) {
 		this.username = username;
 		this.email = email;
 		this.verified = verified;
 		this.role = role;
+		this.locked = locked;
+	}
+
+	public AdminUserDTO() {
+	}
+
+	@JsonIgnore
+	public User getUser() {
+		return new User(this);
 	}
 
 	/**
@@ -78,6 +95,20 @@ public class UserDTO {
 	 */
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	/**
@@ -120,6 +151,20 @@ public class UserDTO {
 	 */
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	/**
+	 * @return the locked
+	 */
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	/**
+	 * @param locked the locked to set
+	 */
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
 	}
 
 }

@@ -1,7 +1,9 @@
 package ru.example.JWT_Auth.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import ru.example.JWT_Auth.config.JwtService;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.enums.Role;
 import ru.example.JWT_Auth.repository.UserRepository;
+import ru.example.JWT_Auth.service.confirmations.VerifiedService;
 
 /**
  * Сервис для аутентификации и регистрации пользователей.
@@ -76,6 +79,9 @@ public class AuthenticationService {
 		if (repository.findByUsername(request.getUsername()).isPresent()) {
 			throw new IllegalArgumentException("Пользователь с именем " + request.getUsername() + " уже существует.");
 		}
+		if (repository.findByEmail(request.getEmail()).isPresent()) {
+			throw new IllegalArgumentException("Пользователь с почтой " + request.getUsername() + " уже существует.");
+		}
 
 		User user = new User.Builder().username(request.getUsername())
 				.password(passwordEncoder.encode(request.getPassword())).email(request.getEmail()).role(Role.USER)
@@ -104,22 +110,23 @@ public class AuthenticationService {
 	 * @since 10.02.2025
 	 */
 	@Transactional
-	public AuthenticationResponse authenticate(AuthenticationRequest request)
-			throws UsernameNotFoundException, RuntimeException {
-		try {
-			authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+	public AuthenticationResponse authenticate(AuthenticationRequest request) {
+	    try {
+	        Authentication authentication = authenticationManager.authenticate(
+	                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+	        );
 
-			User user = repository.findByUsername(request.getUsername()).orElseThrow(
-					() -> new UsernameNotFoundException("Пользователь не найден: " + request.getUsername()));
+	        User user = ((User) authentication.getPrincipal());
 
-			String jwtToken = jwtService.generateToken(user);
-			return new AuthenticationResponse.Builder().token(jwtToken).build();
+	        String jwtToken = jwtService.generateToken(user);
+	        
+	        return new AuthenticationResponse.Builder().token(jwtToken).build();
 
-		} catch (UsernameNotFoundException e) {
-			throw new UsernameNotFoundException("Ошибка аутентификации: " + e.getMessage(), e);
-		} catch (Exception e) {
-			throw new RuntimeException("Ошибка в процессе аутентификации.", e);
-		}
+	    } catch (BadCredentialsException | UsernameNotFoundException e) {
+	        throw new UsernameNotFoundException("Ошибка аутентификации: " + e.getMessage(), e);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Ошибка в процессе аутентификации.", e);
+	    }
 	}
+
 }

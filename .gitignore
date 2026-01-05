@@ -1,5 +1,14 @@
+#config
+configApp/
+
+#ssl
+ssl/
+
 # javaDoc
 doc/
+
+# docker
+.env
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -12,6 +21,7 @@ replay_pid*
 # Игнорировать файлы проекта Eclipse
 .classpath
 .project
+.factorypath
 .settings/
 bin/
 tmp/
@@ -68,9 +78,3 @@ build/
 !src/main/
 !src/test/
 /target/
-
-# docker
-.env
-
-# ssl
-src/main/resources/*.p12 

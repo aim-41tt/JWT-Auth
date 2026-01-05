@@ -6,19 +6,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ru.example.JWT_Auth.DTO.UserDTO;
 import ru.example.JWT_Auth.DTO.request.UserUpdateRequest;
+import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
+import ru.example.JWT_Auth.mapper.user.UserMapper;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.repository.UserRepository;
+import ru.example.JWT_Auth.service.cahe.UserCacheService;
+import ru.example.JWT_Auth.service.confirmations.VerifiedService;
 
 /**
  * Сервис для управления пользователями.
  *
  * <p>
- * Содержит методы для получения и обновления профиля пользователя, а также для 
+ * Содержит методы для получения и обновления профиля пользователя, а также для
  * верификации email и сброса пароля.
  * </p>
  * 
  * @author aim_41tt
- * @version 1.0
+ * @version 1.1
  * @since 10.02.2025
  */
 @Service
@@ -26,18 +30,30 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final VerifiedService verifiedService;
+	private final UserCacheService userCacheService;
+	private final UserMapper userMapper;
 
 	/**
 	 * Конструктор UserService — инициализирует сервис с репозиторием пользователей
 	 * и сервисом верификации email.
+	 * <p>
+	 * Создает экземпляр класса с указанными параметрами.
+	 * </p>
 	 *
-	 * @param userRepository  Репозиторий для работы с пользователями.
+	 * @param userRepository Репозиторий для работы с пользователями.
 	 * @param verifiedService Сервис для верификации email.
+	 * @param userCacheService Сервис кеширывания пользователей.
+	 * @param userMapper Мапер пользователей.
+	 * 
 	 * @since 10.02.2025
+	 * @since 11.08.2025
 	 */
-	public UserService(UserRepository userRepository, VerifiedService verifiedService) {
+	public UserService(UserRepository userRepository, VerifiedService verifiedService,
+			UserCacheService userCacheService, UserMapper userMapper) {
 		this.userRepository = userRepository;
 		this.verifiedService = verifiedService;
+		this.userCacheService = userCacheService;
+		this.userMapper = userMapper;
 	}
 
 	/**
@@ -50,9 +66,7 @@ public class UserService {
 	 */
 	@Transactional
 	public UserDTO getUserProfile(String username) {
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		return mapToDto(user);
+		return userCacheService.getCachedUser(username);
 	}
 
 	/**
@@ -69,7 +83,9 @@ public class UserService {
 	 * @since 10.02.2025
 	 */
 	@Transactional
-	public UserDTO updateUserProfile(String username, UserUpdateRequest updateRequest) throws UsernameNotFoundException {
+	@Deprecated
+	public UserDTO updateUserProfile(String username, UserUpdateRequest updateRequest)
+			throws UsernameNotFoundException {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -85,7 +101,9 @@ public class UserService {
 		}
 
 		User updatedUser = userRepository.save(user);
-		return mapToDto(updatedUser);
+		UserDTO userDTO = userMapper.toUserDTO(updatedUser);
+		userCacheService.cacheUser(userDTO);
+		return userDTO;
 	}
 
 	/**
@@ -96,6 +114,7 @@ public class UserService {
 	 */
 	public void verifiedEmailUser(User user) {
 		verifiedService.verifiedByUser(user);
+		userCacheService.removeUserFromCache(user.getUsername());
 	}
 
 	/**
@@ -104,23 +123,7 @@ public class UserService {
 	 * @param user Объект пользователя.
 	 * @since 10.02.2025
 	 */
-	public void resetPasswordUser(User user) {
-		verifiedService.resetPasswordByUser(user);
-	}
-
-	/**
-	 * Метод mapToDto — Преобразует объект пользователя в DTO.
-	 *
-	 * @param user Объект пользователя.
-	 * @return Объект UserDTO с данными пользователя.
-	 * @since 10.02.2025
-	 */
-	private UserDTO mapToDto(User user) {
-		UserDTO dto = new UserDTO();
-		dto.setUsername(user.getUsername());
-		dto.setEmail(user.getEmail());
-		dto.setVerified(user.getVerified());
-		dto.setRole(user.getRole());
-		return dto;
+	public void resetPasswordUser(User user, ResetPassword resetPassword) {
+		verifiedService.resetPasswordByUser(user, resetPassword);
 	}
 }

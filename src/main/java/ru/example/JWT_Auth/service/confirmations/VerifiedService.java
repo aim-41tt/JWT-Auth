@@ -1,8 +1,10 @@
-package ru.example.JWT_Auth.service;
+package ru.example.JWT_Auth.service.confirmations;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import ru.example.JWT_Auth.DTO.request.resetPassword.ResetPassword;
 import ru.example.JWT_Auth.model.User;
 import ru.example.JWT_Auth.model.email.EmailMessage;
 import ru.example.JWT_Auth.model.email.enums.MessageType;
@@ -13,7 +15,8 @@ import ru.example.JWT_Auth.service.kafka.KafkaProducer;
  * Сервис для проверки и верификации пользователей.
  *
  * <p>
- * Предоставляет методы для отправки email-сообщений и верификации пользователей по имени и email.
+ * Предоставляет методы для отправки email-сообщений и верификации пользователей
+ * по имени и email.
  * </p>
  *
  * @author aim_41tt
@@ -25,22 +28,29 @@ public class VerifiedService {
 
 	private final UserRepository repository;
 	private final KafkaProducer kafkaProducer;
+	private final RedisVerificationService verificationService;
+	@Value("${APP_BASE-URL}")
+	private String baseUrl;
 
 	/**
-	 * Конструктор VerifiedService — инициализирует сервис с репозиторием пользователей
-	 * и продюсером Kafka.
+	 * Конструктор VerifiedService — инициализирует сервис с репозиторием
+	 * пользователей и продюсером Kafka.
 	 *
-	 * @param repository    Репозиторий пользователей.
-	 * @param kafkaProducer Kafka-продюсер для отправки сообщений.
-	 * @since 10.02.2025
+	 * @param repository               Репозиторий пользователей.
+	 * @param kafkaProducer            Kafka-продюсер для отправки сообщений.
+	 * @param RedisVerificationService для создания временных токенов.
+	 * @since 14.02.2025
 	 */
-	public VerifiedService(UserRepository repository, KafkaProducer kafkaProducer) {
+	public VerifiedService(UserRepository repository, KafkaProducer kafkaProducer,
+			RedisVerificationService verificationService) {
 		this.repository = repository;
 		this.kafkaProducer = kafkaProducer;
+		this.verificationService = verificationService;
 	}
 
 	/**
-	 * Метод sendMessageToEmail — Асинхронно отправляет сообщение на email через Kafka.
+	 * Метод sendMessageToEmail — Асинхронно отправляет сообщение на email через
+	 * Kafka.
 	 *
 	 * @param emailMessage Объект EmailMessage с данными для отправки.
 	 * @since 10.02.2025
@@ -61,7 +71,8 @@ public class VerifiedService {
 	}
 
 	/**
-	 * Метод verifiedByUserName — Отправляет email для верификации пользователя по имени.
+	 * Метод verifiedByUserName — Отправляет email для верификации пользователя по
+	 * имени.
 	 *
 	 * @param username Имя пользователя.
 	 * @throws IllegalStateException если email пользователя не найден.
@@ -80,24 +91,15 @@ public class VerifiedService {
 	 * @throws IllegalStateException если email не верифицирован.
 	 * @since 10.02.2025
 	 */
-	public void resetPasswordByUser(User user) {
+	public void resetPasswordByUser(User user, ResetPassword resetPassword) {
 		if (!user.getVerified()) {
 			throw new IllegalStateException("Email не верифицирован");
 		}
-		sendResetPasswordEmail(user.getEmail());
-	}
+		EmailMessage emailMessage = new EmailMessage(user.getEmail(), MessageType.PASSWORD_RESET);
+		String link = linkTemplate(verificationService.generateAndSaveVerificationToken(emailMessage, resetPassword));
+		emailMessage.setLink(link);
 
-	/**
-	 * Метод resetPasswordByUserName — Отправляет email для сброса пароля по имени пользователя.
-	 * 
-	 * @param username Имя пользователя.
-	 * @throws IllegalStateException если email пользователя не найден.
-	 * @since 10.02.2025
-	 */
-	public void resetPasswordByUserName(String username) {
-		String userEmail = repository.findUserEmailByUsername(username)
-				.orElseThrow(() -> new IllegalStateException("Email пользователя не найден"));
-		sendResetPasswordEmail(userEmail);
+		sendMessageToEmail(emailMessage);
 	}
 
 	/**
@@ -107,16 +109,14 @@ public class VerifiedService {
 	 * @since 10.02.2025
 	 */
 	private void sendVerificationEmail(String email) {
-		sendMessageToEmail(new EmailMessage(email, MessageType.VERIFICATION, "http://example.ru"));
+		EmailMessage emailMessage = new EmailMessage(email, MessageType.VERIFICATION);
+		String link = linkTemplate(verificationService.generateAndSaveVerificationToken(emailMessage));
+		emailMessage.setLink(link);
+		sendMessageToEmail(emailMessage);
 	}
 
-	/**
-	 * Метод sendResetPasswordEmail — Отправляет email для сброса пароля.
-	 *
-	 * @param email Email пользователя.
-	 * @since 10.02.2025
-	 */
-	private void sendResetPasswordEmail(String email) {
-		sendMessageToEmail(new EmailMessage(email, MessageType.PASSWORD_RESET, "http://example.ru"));
+	private String linkTemplate(String token) {
+		return baseUrl + "/api/v1/confirming/" + token;
 	}
+
 }
